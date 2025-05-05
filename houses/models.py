@@ -13,3 +13,7 @@ class House(models.Model):
     description = models.TextField()
     address = models.CharField(max_length=140)
     pets_allowed = models.BooleanField(default=True)
+
+    # __str__()메서드 오버라이딩을 통해서 내가 원하는 모습으로 바꿔줄 수 있음
+    def __str__(self):
+        return self.name
