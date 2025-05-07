@@ -19,6 +19,3 @@ class HouseAdmin(admin.ModelAdmin):  # ModelAdmin을 상속받음. ModelAdmin은
     # List보다 Tuple을 사용하는 것을 더 권장: Immutable하기 때문
     list_display = ("name", "price_per_night", "address", "pets_allowed")
     list_filter = ("price_per_night", "pets_allowed")
-    # Tuple 안에 한 개의 요소만 있을 때는 반드시 ,를 이용해줘야 함
-    # ,를 사용하지 않으면 파이썬이 괄호를 없애고 문자열로 바꿔버림
-    search_fields = ("address__startswith",)
