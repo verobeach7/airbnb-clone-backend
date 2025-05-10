@@ -1,0 +1,76 @@
+# AirBnb Clone Schedule
+
+- All Models
+  - Recap of Defaults and Relationship
+  - Users
+    - Profile Photo
+    - Gender
+    - Language
+    - Currency Options
+  - Abstract Model
+  - Rooms
+    - Country
+    - City
+    - Price Per Night
+    - Description
+    - Owner
+    - Room #
+    - Toilet #
+    - Address
+    - Pet Freindly
+    - Category
+    - Type of Place(Entire Place | Private Room | Shared Room)
+    - Amenities(Many to Many)
+      - Name
+  - Experiences
+    - Country
+    - City
+    - Name
+    - Host
+    - Price
+    - Description
+    - Address
+    - Start Time
+    - End Time
+    - Category
+    - Materials (Many to Many)
+      - Name
+      - Description
+  - Categories
+    - Kind (Room | Experience)
+    - Name
+  - Reviews
+    - Review
+    - Rating
+    - Room
+    - Experience
+    - User
+  - Wishlists
+    - Name
+    - Rooms
+    - Experieces
+    - User
+  - Bookings
+    - Kind (Room | Experience)
+    - Room
+    - Experience
+    - Check In
+    - Check Out
+    - Experience Date
+  - Photos
+    - File
+    - Description
+    - Room
+    - Experience
+  - Messages
+    - Room
+      - Users
+    - Message
+      - Text
+      - User
+      - Room
+- Admins for All
+  - `search fields` Foreign Key
+    - ^ startswith
+    - = iexact
+    -
