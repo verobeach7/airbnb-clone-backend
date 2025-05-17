@@ -48,4 +48,5 @@ class Amenity(CommonModel):
     description = models.CharField(
         max_length=150,
         null=True,
+        blank=True,  # 추가해주지 않으면 null=True임에도 불구하고 Form Validation을 통과하지 못하기 때문에 에러가 발생됨
     )
