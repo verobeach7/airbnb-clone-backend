@@ -10,6 +10,10 @@ class Room(CommonModel):
         PRIVATE_ROOM = "private_room", "Private Room"
         SHARED_ROOM = "shared_room", "Shared Room"
 
+    name = models.CharField(
+        max_length=180,
+        default="",
+    )
     country = models.CharField(
         max_length=50,
         default="한국",
@@ -38,6 +42,9 @@ class Room(CommonModel):
     )
     amenities = models.ManyToManyField("rooms.Amenity")
 
+    def __str__(self) -> str:
+        return self.name
+
 
 class Amenity(CommonModel):
     """Amenity Definition"""
@@ -50,3 +57,11 @@ class Amenity(CommonModel):
         null=True,
         blank=True,  # 추가해주지 않으면 null=True임에도 불구하고 Form Validation을 통과하지 못하기 때문에 에러가 발생됨
     )
+
+    def __str__(self) -> str:
+        return self.name
+
+    # Meta 정보를 수정
+    class Meta:
+        # verbose_name_plural: 복수형 일반화 오류가 발생하는 경우 바로 잡아 줄 수 있음
+        verbose_name_plural = "Amenities"
