@@ -11,6 +11,8 @@ class ExperienceAdmin(admin.ModelAdmin):
         "end",
         "created_at",
     )
+    # category를 기준으로 필터링할 수 있음
+    list_filter = ("category",)
 
 
 @admin.register(Perk)
