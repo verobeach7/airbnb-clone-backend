@@ -22,7 +22,7 @@ class Category(CommonModel):
     def __str__(self) -> str:
         # kind는 문자열. 문자열은 .title() 메서드를 사용할 수 있음.
         # 제목으로 해주면 첫 글자를 대문자로 바꿔줌
-        return f"{self.kind.title()}: {self.name}"
+        return self.name
 
     class Meta:
         verbose_name_plural = "Categories"
