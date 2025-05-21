@@ -48,15 +48,18 @@ class Room(CommonModel):
         blank=True,
     )
 
-    def __str__(self) -> str:
-        return self.name
+    # 첫 번째 parameter 자리는 무조건 self이기 때문에 이름을 붙여줘도 self로 작동함
+    def __str__(room) -> str:
+        return room.name
 
     # # 방법1. 모델에 method를 추가
     # def total_amenities(self):
     #     print(self)
     #     return "hello"
-    def total_amenities(self):
-        return self.amenities.count()
+
+    # 첫 번째 parameter 자리는 무조건 self이기 때문에 이름을 붙여줘도 self로 작동함
+    def total_amenities(room):
+        return room.amenities.count()
 
 
 class Amenity(CommonModel):
@@ -71,8 +74,9 @@ class Amenity(CommonModel):
         blank=True,  # 추가해주지 않으면 null=True임에도 불구하고 Form Validation을 통과하지 못하기 때문에 에러가 발생됨
     )
 
-    def __str__(self) -> str:
-        return self.name
+    # 첫 번째 parameter 자리는 무조건 self이기 때문에 이름을 붙여줘도 self로 작동함
+    def __str__(amenity) -> str:
+        return amenity.name
 
     # Meta 정보를 수정
     class Meta:
