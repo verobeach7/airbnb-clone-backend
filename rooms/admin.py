@@ -9,9 +9,11 @@ class RoomAdmin(admin.ModelAdmin):
         "name",
         "price",
         "kind",
+        # 여기에 추가되는 것을 장고는 모델에서 찾으려고 함
+        # attribute을 찾아보고 없다면 method를 찾아봄
+        "total_amenities",
         "owner",
         "created_at",
-        "updated_at",
     )
     list_filter = (
         "country",
@@ -30,6 +32,15 @@ class RoomAdmin(admin.ModelAdmin):
         form = super(RoomAdmin, self).get_form(request, obj, **kwargs)
         form.base_fields["category"].queryset = Category.objects.filter(kind="rooms")
         return form
+
+    # # 방법2. 관리자 코드에 method 추가
+    # def total_amenities(self, room):
+    #     # print(self)  # rooms.RoomAdmin
+    #     # print(room)  # APT in 서울
+    #     # return "hi"
+    #     return room.amenities.count()
+
+    # # 방법1과 방법2가 모두 코딩 되어있는 경우 관리자 코드(방법2)가 우선함
 
 
 @admin.register(Amenity)

@@ -51,6 +51,13 @@ class Room(CommonModel):
     def __str__(self) -> str:
         return self.name
 
+    # # 방법1. 모델에 method를 추가
+    # def total_amenities(self):
+    #     print(self)
+    #     return "hello"
+    def total_amenities(self):
+        return self.amenities.count()
+
 
 class Amenity(CommonModel):
     """Amenity Definition"""
