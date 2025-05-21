@@ -39,10 +39,18 @@ class Room(CommonModel):
     owner = models.ForeignKey(
         "users.User",
         on_delete=models.CASCADE,
+        # room_set 대신에 rooms로 Reverse Accessors로 이용 가능
+        # User.room_set.all() 대신 User.rooms로 접근
+        # 더이상 room_set은 없어지며, rooms로 접근해야 함
+        related_name="rooms",
     )
-    amenities = models.ManyToManyField("rooms.Amenity")
+    amenities = models.ManyToManyField(
+        "rooms.Amenity",
+        related_name="rooms",
+    )
     category = models.ForeignKey(
         "categories.Category",
+        related_name="rooms",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,

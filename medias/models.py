@@ -12,12 +12,14 @@ class Photo(CommonModel):
     # 사진은 room 또는 experience 둘 중 하나에 종속되기 때문에 둘 중 하나는 null이 될 수밖에 없음
     room = models.ForeignKey(
         "rooms.Room",
+        related_name="photos",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
     )
     experience = models.ForeignKey(
         "experiences.Experience",
+        related_name="photos",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
@@ -35,6 +37,7 @@ class Video(CommonModel):
     # 외래키로 연결되지만 한 개만 고유하게 연결 가능함
     experience = models.OneToOneField(
         "experiences.Experience",
+        related_name="videos",
         on_delete=models.CASCADE,
     )
 

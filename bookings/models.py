@@ -16,10 +16,12 @@ class Booking(CommonModel):
     # Booking은 한 명의 예약자와 하나의 Room 또는 Experience가 필요함. One to Many 관계임.
     user = models.ForeignKey(
         "users.User",
+        related_name="bookings",
         on_delete=models.CASCADE,
     )
     room = models.ForeignKey(
         "rooms.Room",
+        related_name="bookings",
         # 방이 삭제되더라도 유저는 예약 기록을 가지고 있는 것이 여행 기록을 남길 수 있기에 좋음
         on_delete=models.SET_NULL,
         null=True,
@@ -27,6 +29,7 @@ class Booking(CommonModel):
     )
     experience = models.ForeignKey(
         "experiences.Experience",
+        related_name="bookings",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
