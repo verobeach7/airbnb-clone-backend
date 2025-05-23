@@ -2,6 +2,27 @@ from django.contrib import admin
 from .models import Review
 
 
+class RatingFilter(admin.SimpleListFilter):
+    title = "Filter by rating"
+
+    parameter_name = "good_or_bad"
+
+    def lookups(self, request, model_admin):
+        return [
+            ("good", "Good"),
+            ("bad", "Bad"),
+        ]
+
+    def queryset(self, request, reviews):
+        good_or_bad = self.value()
+        if good_or_bad == "good":
+            return reviews.filter(rating__gte=3)
+        elif good_or_bad == "bad":
+            return reviews.filter(rating__lt=3)
+        else:
+            return reviews
+
+
 # WordFilter 클래스를 별도의 파일에 저장한 후 임포트하여 사용해도 됨
 class WordFilter(admin.SimpleListFilter):
     title = "Filter by words!"
@@ -46,6 +67,7 @@ class ReviewAdmin(admin.ModelAdmin):
     list_filter = (
         # 위에서부터 차례대로 필터링하므로 필터링 순서에 따라 결과가 달라질 수 있음
         WordFilter,
+        RatingFilter,
         "rating",
         "user__is_host",  # user는 review model의 Foreign Key
         # room은 Review Model의 Foreign Key
