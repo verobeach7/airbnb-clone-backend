@@ -12,6 +12,7 @@ class RoomAdmin(admin.ModelAdmin):
         # 여기에 추가되는 것을 장고는 모델에서 찾으려고 함
         # attribute을 찾아보고 없다면 method를 찾아봄
         "total_amenities",
+        "rating",
         "owner",
         "created_at",
     )
