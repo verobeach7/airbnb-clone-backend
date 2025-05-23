@@ -3,8 +3,22 @@ from .models import Room, Amenity
 from categories.models import Category
 
 
+# Step1. Make action
+@admin.action(description="Set all prices to zero")
+# 3개의 parameters가 반드시 필요함
+def reset_prices(model_admin, request, rooms):
+    for room in rooms.all():
+        room.price = 0
+        room.save()
+
+
 @admin.register(Room)
 class RoomAdmin(admin.ModelAdmin):
+
+    # Step2. Link actions
+    # action을 연결하기 위해서는 actions에 만들어 놓은 action을 튜플로 넣어주면 됨
+    actions = (reset_prices,)
+
     list_display = (
         "name",
         "price",
@@ -26,6 +40,13 @@ class RoomAdmin(admin.ModelAdmin):
         # 날짜로 필터를 사용하는 경우 장고가 알아서 오늘, 7일, 한달 등으로 알아서 필터링 해주는 기능을 가지고 있음
         "created_at",
         "updated_at",
+    )
+    # search_fields=는 List 또는 Tuple을 받음
+    search_fields = (
+        # search_fields는 기본으로 __contains로 검색
+        # 만약 2를 검색하면 2, 20, 12 등 2를 포함하기만 하면 다 찾아옴
+        "name",  # 1순위로 검색
+        "price",  # 2순위로 검색(1순위 검색 후 없으면)
     )
 
     # 아래 코드를 이용하면 Rooms와 관련된 카테고리만 보여지게 할 수 있음
