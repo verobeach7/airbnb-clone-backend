@@ -1,0 +1,11 @@
+{% if not not_found %}
+<h1>{{room.name}}</h1>
+<h3>{{room.country}}/{{room.city}}</h3>
+<h4>{{room.price}}</h4>
+<p>{{room.description}}</p>
+<!-- 직접 DB에서 데이터를 가져올 필요 없이 python object를 다루듯이 써주기만 하면 장고가 알아서 처리함 -->
+<!-- category는 외래키에 불과. 장고가 외래키를 확인하고 해당 DB에 접근하여 알아서 필요한 데이터를 가져옴 -->
+<h5>{{room.category.name}}</h5>
+{% else %}
+<h1>404 Not Found</h1>
+{% endif %}
