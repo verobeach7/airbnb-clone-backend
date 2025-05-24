@@ -1,1 +1,17 @@
-<h1>{{title}}</h1>
+<h3>{{title}}</h3>
+
+<ul>
+  <!-- {% %}: python 코드 사용 -->
+  {% for room in rooms %}
+  <li>
+    <!-- {{ variable }}: 변수 사용 -->
+    <a href="/rooms/{{room.pk}}">
+      {{room.name}}<br />
+      <!-- html코드 내에서는 all() 대신 ()없이 all만 적어주면 됨 -->
+      {% for amenity in room.amenities.all %}
+      <span>-{{amenity.name}}<br /></span>
+      {% endfor %}
+    </a>
+  </li>
+  {% endfor %}
+</ul>
