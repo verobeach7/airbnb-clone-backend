@@ -3,9 +3,10 @@ from django.http import HttpResponse
 
 
 # Create your views here.
-def say_hello(request):
-    print(
-        "request", request
-    )  # 요청하고 있는 사용자 및 브라우저 정보, 전송하고 있는 데이터, 요청한 url 정보, ip정보, 쿠키 등을 담고 있음
-    # return "hello"  # Error: 'str' object has no attribute 'get' -> HTTP Response를 Return해야 함
-    return HttpResponse("hello")
+def see_all_rooms(request):
+    return HttpResponse("see all rooms")
+
+
+# url에서 parameter를 받으므로 받아 줄 공간을 만들어야 함. room_id 추가
+def see_one_room(request, room_id):
+    return HttpResponse(f"see room with id: {room_id}")
