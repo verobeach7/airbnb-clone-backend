@@ -5,22 +5,31 @@ from .serializers import CategorySerializer
 
 
 # Django REST Framework를 사용하기 위해서 데코레이터만 달아주면 됨
-@api_view()
+@api_view(["GET", "POST"])
 def categories(request):
-    all_categories = Category.objects.all()
-    # 그냥 all_categories만 넘기면 serializers.py에서는 하나의 category만 넘어오고 이것을 번역할 것이라고 생각함. 실은 여러 카테고리를 담고 있는 리스트가 보내지기 때문에 `many=True`를 함께 보내줘야 함.
-    serializer = CategorySerializer(
-        all_categories,
-        many=True,
-    )
-    return Response(
-        {
-            "ok": True,
-            # Response가 자동으로 Serializable하게 바꿔주지는 않음
-            # Django Serialization Framework는 별로 좋지 않음
-            # Django REST Framework와 함께 제공되는 Serializer를 사용하여 해결
-            # 별도의 serializers.py 파일 생성 필요
-            # "categories": Category.objects.all(),
-            "categories": serializer.data,
-        }
-    )
+    if request.method == "GET":
+        all_categories = Category.objects.all()
+        serializer = CategorySerializer(
+            all_categories,
+            many=True,
+        )
+        return Response(serializer.data)
+    elif request.method == "POST":
+        # 다음과 같이 진행하여 DB에 Category를 만들면 될 것 같지만 이렇게 하면 안됨
+        # 어떠한 검증도 없이 사용자를 100% 신뢰한다는 것과 같음
+        # 항상 Data를 검증해야 함!!!
+        # 즉, 최소한 모델에서 설정한 규약을 준수하도록 해야 함: 문자 길이 등
+        # 이대로 진행하면 사용자가 엄청 긴 텍스트를 보내는 경우 데이터베이스에서 에러 발생
+        Category.objects.create(
+            name=request.data["name"],
+            kind=request.data["kind"],
+        )
+
+        return Response({"created": True})
+
+
+@api_view()
+def category(request, pk):
+    category = Category.objects.get(pk=pk)
+    serializer = CategorySerializer(category)
+    return Response(serializer.data)

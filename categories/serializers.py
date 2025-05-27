@@ -7,10 +7,10 @@ class CategorySerializer(serializers.Serializer):
     # 추후에 Django REST Framework를 사용하여 쉽게 해결할 것임
 
     # 여기에 작성한 것만 Serialize해서 JSON으로 보냄
-    # pk = serializers.IntegerField()
-    pk = (
-        serializers.CharField()
-    )  # 스트링으로 변환하여 보내게 됨. 즉, 원하는 형태로 데이터 타입도 수정 가능
+    pk = serializers.IntegerField()
+    # pk = (
+    #     serializers.CharField()
+    # )  # 스트링으로 변환하여 보내게 됨. 즉, 원하는 형태로 데이터 타입도 수정 가능
     name = serializers.CharField(required=True)
     kind = serializers.CharField()
     created_at = serializers.DateTimeField()
