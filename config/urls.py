@@ -7,4 +7,5 @@ urlpatterns = [
     # include를 이용하면 별도의 import가 불필요함
     # 파일 경로를 넣어주면 장고가 알아서 처리함
     path("rooms/", include("rooms.urls")),
+    path("categories/", include("categories.urls")),
 ]

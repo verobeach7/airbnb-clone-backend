@@ -30,6 +30,10 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+THIRD_PARTY_APPS = [
+    "rest_framework",
+]
+
 CUSTOM_APPS = [
     "common.apps.CommonConfig",
     "users.apps.UsersConfig",
@@ -53,7 +57,7 @@ SYSTEM_APPS = [
 ]
 
 # 장고는 프레임워크이기 때문에 INSTALLED_APPS는 반드시 있어야 함
-INSTALLED_APPS = SYSTEM_APPS + CUSTOM_APPS
+INSTALLED_APPS = SYSTEM_APPS + THIRD_PARTY_APPS + CUSTOM_APPS
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
