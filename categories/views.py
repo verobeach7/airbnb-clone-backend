@@ -1,15 +1,14 @@
 from .models import Category
-from django.http import JsonResponse
-from django.core import serializers
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 
-# Create your views here.
+# Django REST Framework를 사용하기 위해서 데코레이터만 달아주면 됨
+@api_view()
 def categories(request):
-    all_categories = Category.objects.all()
-    return JsonResponse(
+    return Response(
         {
             "ok": True,
-            # all_categories는 QuerySet으로 JSON으로 serialize 필요
-            "categories": serializers.serialize("json", all_categories),
+            "categories": Category.objects.all(),
         }
     )
