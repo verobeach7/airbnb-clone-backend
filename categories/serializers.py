@@ -36,3 +36,15 @@ class CategorySerializer(serializers.Serializer):
         # )
         # DB에 유효성 검사를 마친 장고 모델 데이터를 가지고 데이터베이스에 새로운 카테고리를 생성함
         return Category.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        # if validated_data["name"]:
+        #     instance.name = validated_data["name"]
+
+        # validated_data는 Dictionary
+        # Dictionary는 get 메서드를 가지고 있음
+        # get 메서드는 첫 번째 인자로 키, 두 번째 인자는 키를 가지고 찾은 값이 없을 시 Default Value 지정
+        instance.name = validated_data.get("name", instance.name)
+        instance.kind = validated_data.get("kind", instance.kind)
+        instance.save()
+        return instance
