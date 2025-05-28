@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from .models import Category
 
 
 class CategorySerializer(serializers.Serializer):
@@ -17,9 +18,21 @@ class CategorySerializer(serializers.Serializer):
         required=True,
         max_length=50,
     )
-    kind = serializers.CharField(
-        max_length=15,
+    kind = serializers.ChoiceField(
+        # max_length=15, # ChoiceField이므로 글자수 제한 불필요
+        choices=Category.CategoryKindChoices.choices,  # 선택지 외 불가 설정
     )
     created_at = serializers.DateTimeField(
         read_only=True,
     )
+
+    def create(self, validated_data):
+        # 아래처럼 Django Model로 만들어 줄 수 있음
+        # 매우 큰 모델인 경우 아래처럼 일일이 다 해주는 것은 매우 비효율적
+        # Property가 100개라면? 100개를 다 일일이 작성?
+        # Category.objects.create(
+        #     name=validated_data["name"],
+        #     kind=validated_data["kind"],
+        # )
+        # DB에 유효성 검사를 마친 장고 모델 데이터를 가지고 데이터베이스에 새로운 카테고리를 생성함
+        return Category.objects.create(**validated_data)

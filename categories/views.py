@@ -26,7 +26,14 @@ def categories(request):
         # )
         serializer = CategorySerializer(data=request.data)
         if serializer.is_valid():
-            return Response({"created": True})
+            # User로부터 온 JSON을 장고 모델로 변환한다는 것은 데이터베이스에 Category 추가를 의미
+            # serializer.save() 호출 시 자동으로 serializer에서 create method를 찾음
+            # 즉, CategorySerializer에 create Method를 만들어줘야 함
+            new_category = (
+                serializer.save()
+            )  # 반환값인 new_category는 Django 모델(Python 객체)
+            # 장고 모델 데이터를 다시 JSON으로 변경하여 브라우저에 반환하여 보여줌
+            return Response(CategorySerializer(new_category).data)
         else:
             return Response(serializer.errors)
 
