@@ -10,7 +10,7 @@ def categories(request):
     if request.method == "GET":
         all_categories = Category.objects.all()
         serializer = CategorySerializer(
-            all_categories,
+            all_categories,  # Django Model을 JSON으로 변환
             many=True,
         )
         return Response(serializer.data)
@@ -20,16 +20,19 @@ def categories(request):
         # 항상 Data를 검증해야 함!!!
         # 즉, 최소한 모델에서 설정한 규약을 준수하도록 해야 함: 문자 길이 등
         # 이대로 진행하면 사용자가 엄청 긴 텍스트를 보내는 경우 데이터베이스에서 에러 발생
-        Category.objects.create(
-            name=request.data["name"],
-            kind=request.data["kind"],
-        )
-
-        return Response({"created": True})
+        # Category.objects.create(
+        #     name=request.data["name"],
+        #     kind=request.data["kind"],
+        # )
+        serializer = CategorySerializer(data=request.data)
+        if serializer.is_valid():
+            return Response({"created": True})
+        else:
+            return Response(serializer.errors)
 
 
 @api_view()
 def category(request, pk):
-    category = Category.objects.get(pk=pk)
-    serializer = CategorySerializer(category)
+    category = Category.objects.get(pk=pk)  # Django Model의 Instance를 가져옴
+    serializer = CategorySerializer(category)  # 첫 번째 인자로 넣어주면 JSON으로 변환
     return Response(serializer.data)
