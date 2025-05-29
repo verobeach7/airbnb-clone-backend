@@ -42,6 +42,9 @@ class CategoryDetail(APIView):
 
     def get(self, request, pk):
         serializer = CategorySerializer(self.get_object(pk))
+        print(
+            serializer
+        )  # ModelSerializer를 사용해서 얻을 수 있는 serializer를 볼 수 있음
         return Response(serializer.data)
 
     def put(self, request, pk):
