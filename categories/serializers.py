@@ -10,8 +10,6 @@ class CategorySerializer(serializers.ModelSerializer):
         # fields나 exclude 둘 중에 하나를 설정해주면 됨
         # fields는 어떤 field를 보이게 할 것인지 설정
         fields = (
-            "id",
-            "created_at",
             "name",
             "kind",
         )
