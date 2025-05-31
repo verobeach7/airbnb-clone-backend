@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework.views import APIView
 from rest_framework.status import HTTP_204_NO_CONTENT
 from rest_framework.response import Response
@@ -109,57 +110,39 @@ class Rooms(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        ### print(dir(request))
-        # ['FILES', 'POST', '__class__', '__class_getitem__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__firstlineno__', '__format__', '__ge__', '__getattr__', '__getattribute__', '__getstate__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__static_attributes__', '__str__', '__subclasshook__', '__weakref__', '_auth', '_authenticate', '_authenticator', '_content_type', '_data', '_default_negotiator', '_files', '_full_data', '_load_data_and_files', '_load_stream', '_not_authenticated', '_parse', '_request', '_stream', '_supports_form_parsing', '_user', 'accepted_media_type', 'accepted_renderer', 'auth', 'authenticators', 'content_type', 'csrf_processing_done', 'data', 'force_plaintext_errors', 'negotiator', 'parser_context', 'parsers', 'query_params', 'stream', 'successful_authenticator', 'user', 'version', 'versioning_scheme']
-        ### print(dir(request.user))
-        # ['CurrencyChoices', 'DoesNotExist', 'EMAIL_FIELD', 'GenderChoices', 'LanguageChoices', 'Meta', 'MultipleObjectsReturned', 'REQUIRED_FIELDS', 'USERNAME_FIELD', '__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__firstlineno__', '__format__', '__ge__', '__getattribute__', '__getstate__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__setstate__', '__sizeof__', '__static_attributes__', '__str__', '__subclasshook__', '__weakref__', '_check_column_name_clashes', '_check_composite_pk', '_check_constraints', '_check_db_table_comment', '_check_default_pk', '_check_field_name_clashes', '_check_fields', '_check_id_field', '_check_indexes', '_check_local_fields', '_check_long_column_names', '_check_m2m_through_same_relationship', '_check_managers', '_check_model', '_check_model_name_db_lookup_clashes', '_check_ordering', '_check_property_name_related_field_accessor_clashes', '_check_single_primary_key', '_check_swappable', '_check_unique_together', '_do_insert', '_do_update', '_get_FIELD_display', '_get_expr_references', '_get_field_expression_map', '_get_next_or_previous_by_FIELD', '_get_next_or_previous_in_order', '_get_pk_val', '_get_session_auth_hash', '_get_unique_checks', '_is_pk_set', '_meta', '_parse_save_params', '_password', '_perform_date_checks', '_perform_unique_checks', '_prepare_related_fields_for_save', '_save_parents', '_save_table', '_set_pk_val', '_state', '_validate_force_insert', 'acheck_password', 'adelete', 'aget_all_permissions', 'aget_group_permissions', 'aget_user_permissions', 'ahas_module_perms', 'ahas_perm', 'ahas_perms', 'arefresh_from_db', 'asave', 'avatar', 'bookings', 'chatting_rooms', 'check', 'check_password', 'clean', 'clean_fields', 'currency', 'date_error_message', 'date_joined', 'delete', 'email', 'email_user', 'experiences', 'first_name', 'from_db', 'full_clean', 'gender', 'get_all_permissions', 'get_constraints', 'get_currency_display', 'get_deferred_fields', 'get_email_field_name', 'get_full_name', 'get_gender_display', 'get_group_permissions', 'get_language_display', 'get_next_by_date_joined', 'get_previous_by_date_joined', 'get_session_auth_fallback_hash', 'get_session_auth_hash', 'get_short_name', 'get_user_permissions', 'get_username', 'groups', 'has_module_perms', 'has_perm', 'has_perms', 'has_usable_password', 'id', 'is_active', 'is_anonymous', 'is_authenticated', 'is_host', 'is_staff', 'is_superuser', 'language', 'last_login', 'last_name', 'logentry_set', 'messages', 'name', 'natural_key', 'normalize_username', 'objects', 'password', 'pk', 'prepare_database_save', 'refresh_from_db', 'reviews', 'rooms', 'save', 'save_base', 'serializable_value', 'set_password', 'set_unusable_password', 'unique_error_message', 'user_permissions', 'username', 'username_validator', 'validate_constraints', 'validate_unique', 'wishlists']
         if request.user.is_authenticated:
             serializer = RoomDetailSerializer(data=request.data)
             if serializer.is_valid():
-                # owner, amenities, category를 Relationship에 있는 데이터로 read_only=True 설정하여 함
-                # read_only=True 설정으로 인해 owner, amenities, category 데이터 없이도 유효성 검사를 통과함
-                # 하지만 데이터베이스에 저장되기 위해서는 owner, amenities, category가 not null이기 때문에 반드시 주어져야 함
-                # request.data 외에 데이터를 어딘가에서 받아 방을 생성할 수 있는 방법을 찾아야 함
-                # models.py의 모델에 owner로 속성을 만들었기 때문에 반드시 owner로 보내야 함
-                ### print(request.data)
-                # {'amenities': [], 'category': 2, 'created_at': '2025-05-17T13:56:38.788586+09:00', 'updated_at': '2025-05-30T15:35:26.318196+09:00', 'name': 'APT in 서울', 'country': '한국', 'city': '서울', 'price': 0, 'rooms': 12, 'toilets': 12, 'description': 'ㅁㄴㅇㄹ', 'address': '서울', 'pet_friendly': True, 'kind': 'entire_place'}
-                # request.data 내에 category 항목이 있는지 확인
                 category_pk = request.data.get("category")
-                # 카테고리가 없을 때 둘 중 하나 선택해야 함: null로 저장할 것인지, 에러를 발생시킬 것인지
+
                 if not category_pk:
                     raise ParseError(
                         "Category is required.",
-                    )  # 400 Bad Request Error 발생시킴
-                # category_pk를 가져왔다면 해당 Category Object가 실제로 존재하면 가져오고 없으면 에러를 발생
+                    )
                 try:
                     category = Category.objects.get(pk=category_pk)
-                    print(category.kind)
-                    # Room 생성 중이라면 당연히 Category는 Rooms에 해당하는 것만 골라야 하므로 experiences에 해당하는 Category라면 에러 발생시켜야 함
                     if category.kind == Category.CategoryKindChoices.EXPERIENCES:
                         raise ParseError("The category kind should be 'rooms'.")
                 except Category.DoesNotExist:
                     raise ParseError("category not found.")
-                room = serializer.save(
-                    owner=request.user,
-                    category=category,
-                )
-                # amenities 없이도 방을 생성되는 것을 기본으로 하고, 만약 방을 추가할 때 amenities를 함께 제공했다면 이를 추후에 추가하도록 함(선택 사항으로 필수로 할지는 개발자가 생각해보고 결정하면 됨. 필수로 하기 위해서는 category 방식을 사용하면 됨)
-                amenities = request.data.get("amenities")
-                ### 여기서 중요한 문제!!!: 방은 이미 만들어졌는데 amenities에서 문제가 발생하는 경우 방은 생성되고 사용자는 ParseError를 보게 됨
-                for amenity_pk in amenities:
-                    # 데이터베이스에서 객체를 가져오는 과정에서 에러 발생 가능: try-except
-                    try:
-                        amenity = Amenity.objects.get(pk=amenity_pk)
-                        room.amenities.add(amenity)
-                    except Amenity.DoesNotExist:
-                        ### amenities를 그렇게 중요하게 여기지 않는 경우
-                        # 만약 방은 생성되고 amenities 에러는 조용히 지나가길 원한다면 그냥 pass해주면 됨: Silence Error
-                        pass
-                        ### amenities가 중요하여 이것 없이는 방을 생성하고 싶지 않은 경우
-                        # room.delete()
-                        # raise ParseError(f"Amenity with id {amenity_pk} not found.")
-                serializer = RoomDetailSerializer(room)
-                return Response(serializer.data)
+                # transaction 없이는 코드를 실행할 때마다 쿼리가 즉시 데이터베이스에 반영됨
+                # transaction을 사용하면 각 과정의 변경사항을 리스트로 저장해 놓음
+                # transaction 내부의 모든 코드를 살펴본 후 에러가 발생하지 않는다면 DB로 푸쉬함
+                # try-except가 있으면 transaction이 에러가 있음을 알기 전에 종료되버림
+                try:
+                    with transaction.atomic():
+                        room = serializer.save(
+                            owner=request.user,
+                            category=category,
+                        )
+                        amenities = request.data.get("amenities")
+                        for amenity_pk in amenities:
+                            amenity = Amenity.objects.get(pk=amenity_pk)
+                            room.amenities.add(amenity)
+                        serializer = RoomDetailSerializer(room)
+                        return Response(serializer.data)
+                except Exception:
+                    raise ParseError("Amenity not found.")
             else:
                 return Response(serializer.errors)
         else:
