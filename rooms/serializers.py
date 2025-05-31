@@ -28,6 +28,13 @@ class RoomDetailSerializer(ModelSerializer):
         fields = "__all__"
         # depth = 1
 
+    # 데이터베이스에 추가되는 것을 막기 위해 일부러 에러 발생시키기
+    # def create(self, validated_data):
+    #     # views.py에서 serializer.save(추가 데이터)에서 넘어온 최종 데이터 확인
+    #     print(validated_data)
+    #     # {'name': 'APT in 서울', 'country': '한국', 'city': '서울', 'price': 0, 'rooms': 12, 'toilets': 12, 'description': 'ㅁㄴㅇㄹ', 'address': '서울', 'pet_friendly': True, 'kind': 'entire_place', 'owner': <SimpleLazyObject: <User: verobeach7>>}
+    #     return
+
     # 내부 코드를 보여주기 위한 것. 알아서 아래처럼 처리함
     # def create(self, validated_data):
     #     # create 메서드의 반환 값은 항상 모델의 instance여야 함!!!
