@@ -127,20 +127,37 @@ class Rooms(APIView):
                 category_pk = request.data.get("category")
                 # 카테고리가 없을 때 둘 중 하나 선택해야 함: null로 저장할 것인지, 에러를 발생시킬 것인지
                 if not category_pk:
-                    raise ParseError  # 400 Bad Request Error 발생시킴
+                    raise ParseError(
+                        "Category is required.",
+                    )  # 400 Bad Request Error 발생시킴
                 # category_pk를 가져왔다면 해당 Category Object가 실제로 존재하면 가져오고 없으면 에러를 발생
                 try:
                     category = Category.objects.get(pk=category_pk)
                     print(category.kind)
                     # Room 생성 중이라면 당연히 Category는 Rooms에 해당하는 것만 골라야 하므로 experiences에 해당하는 Category라면 에러 발생시켜야 함
                     if category.kind == Category.CategoryKindChoices.EXPERIENCES:
-                        raise ParseError
+                        raise ParseError("The category kind should be 'rooms'.")
                 except Category.DoesNotExist:
-                    raise ParseError
+                    raise ParseError("category not found.")
                 room = serializer.save(
                     owner=request.user,
                     category=category,
                 )
+                # amenities 없이도 방을 생성되는 것을 기본으로 하고, 만약 방을 추가할 때 amenities를 함께 제공했다면 이를 추후에 추가하도록 함(선택 사항으로 필수로 할지는 개발자가 생각해보고 결정하면 됨. 필수로 하기 위해서는 category 방식을 사용하면 됨)
+                amenities = request.data.get("amenities")
+                ### 여기서 중요한 문제!!!: 방은 이미 만들어졌는데 amenities에서 문제가 발생하는 경우 방은 생성되고 사용자는 ParseError를 보게 됨
+                for amenity_pk in amenities:
+                    # 데이터베이스에서 객체를 가져오는 과정에서 에러 발생 가능: try-except
+                    try:
+                        amenity = Amenity.objects.get(pk=amenity_pk)
+                        room.amenities.add(amenity)
+                    except Amenity.DoesNotExist:
+                        ### amenities를 그렇게 중요하게 여기지 않는 경우
+                        # 만약 방은 생성되고 amenities 에러는 조용히 지나가길 원한다면 그냥 pass해주면 됨: Silence Error
+                        pass
+                        ### amenities가 중요하여 이것 없이는 방을 생성하고 싶지 않은 경우
+                        # room.delete()
+                        # raise ParseError(f"Amenity with id {amenity_pk} not found.")
                 serializer = RoomDetailSerializer(room)
                 return Response(serializer.data)
             else:
