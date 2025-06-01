@@ -86,7 +86,7 @@ class Room(CommonModel):
         # .aggregate(Avg('rating'))는 DB 수준에서 평균을 계산해서 단일 값만 반환
         average_rating = room.reviews.aggregate(Avg("rating"))["rating__avg"]
         if average_rating is None:
-            return "No Reviews"
+            return 0
         else:
             return round(average_rating, 2)
 

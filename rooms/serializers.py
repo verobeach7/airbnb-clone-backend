@@ -1,4 +1,4 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from .models import Amenity, Room
 from users.serializers import TinyUserSerializer
 from categories.serializers import CategorySerializer
@@ -23,10 +23,21 @@ class RoomDetailSerializer(ModelSerializer):
     amenities = AmenitySerializer(read_only=True, many=True)
     category = CategorySerializer(read_only=True)
 
+    # models.py의 rating Method를 이용하여 결과를 넣어 필드를 만들어 줌
+    # 모델에 있는 속성 명 외 다른 이름을 사용해주면 됨. 겹치면 overriding되버림
+    rating = SerializerMethodField()
+
     class Meta:
         model = Room
         fields = "__all__"
         # depth = 1
+
+    # 반드시 get_{속성명}으로 이름지어줘야 모델의 메서드에서 계산한 결과가 rating에 들어감
+    def get_rating(self, room):
+        print(
+            room
+        )  # room.name이 출력됨. 즉, Serializing하고 있는 Object가 함께 호출됨.
+        return room.rating()
 
     # 데이터베이스에 추가되는 것을 막기 위해 일부러 에러 발생시키기
     # def create(self, validated_data):
@@ -42,6 +53,8 @@ class RoomDetailSerializer(ModelSerializer):
 
 
 class RoomListSerializer(ModelSerializer):
+    rating = SerializerMethodField()
+
     class Meta:
         model = Room
         fields = (
@@ -50,4 +63,8 @@ class RoomListSerializer(ModelSerializer):
             "country",
             "city",
             "price",
+            "rating",
         )
+
+    def get_rating(self, room):
+        return room.rating()
