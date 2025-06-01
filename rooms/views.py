@@ -11,6 +11,7 @@ from rest_framework.exceptions import (
 from .models import Amenity, Room
 from categories.models import Category
 from .serializers import AmenitySerializer, RoomListSerializer, RoomDetailSerializer
+from reviews.serializers import ReviewSerializer
 
 
 class Amenities(APIView):
@@ -233,3 +234,35 @@ class RoomDetail(APIView):
             raise PermissionDenied
         room.delete()
         return Response(status=HTTP_204_NO_CONTENT)
+
+
+class RoomReviews(APIView):
+    def get_object(self, pk):
+        try:
+            return Room.objects.get(pk=pk)
+        except Room.DoesNotExist:
+            raise NotFound
+
+    def get(self, request, pk):
+        try:
+            # 모든 딕셔너리의 get Method는 기본값을 지정할 수 있음
+            page = request.query_params.get("page", 1)
+            print(type(page))
+            # parameter로 page를 줬을 때는 <class 'str'>, 기본값이 들어갈 때는 <class 'int'>로 타입이 결정됨
+            print(page)
+            page = int(page)
+        # page가 없거나 문자가 들어가는 경우 에러가 발생하는데 이 때 1페이지를 보여주도록 함
+        except ValueError:
+            page = 1
+        page_size = 3
+        start = (page - 1) * page_size
+        end = start + page_size
+        room = self.get_object(pk)
+        serializer = ReviewSerializer(
+            # 앞의 것(0)은 포함(inclusive)되고 뒤의 것(3)은 포함되지 않음(exclusive)
+            # lazy하기 때문에 장고는 limit과 offset을 포함하는 SQL문을 DB에 보냄
+            # 즉, 모든 데이터를 불러와 자르는 것이 아니라 해당되는 데이터만 불러옴
+            room.reviews.all()[start:end],
+            many=True,
+        )
+        return Response(serializer.data)

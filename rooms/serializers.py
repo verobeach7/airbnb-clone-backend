@@ -28,10 +28,6 @@ class RoomDetailSerializer(ModelSerializer):
     # 모델에 있는 속성 명 외 다른 이름을 사용해주면 됨. 겹치면 overriding되버림
     rating = SerializerMethodField()
     is_owner = SerializerMethodField()
-    reviews = ReviewSerializer(
-        many=True,
-        read_only=True,
-    )
 
     class Meta:
         model = Room
