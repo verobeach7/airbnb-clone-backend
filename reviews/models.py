@@ -27,5 +27,9 @@ class Review(CommonModel):
     payload = models.TextField()
     rating = models.PositiveIntegerField()
 
+    # # 리뷰 리스트를 역순(최신순)으로 하고 싶으면 Meta class에 ordering을 설정해주면 됨
+    # class Meta:
+    #     ordering = ["-id"]
+
     def __str__(self) -> str:
         return f"{self.user} / {self.rating}⭐️"
