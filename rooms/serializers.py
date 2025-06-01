@@ -26,6 +26,7 @@ class RoomDetailSerializer(ModelSerializer):
     # models.py의 rating Method를 이용하여 결과를 넣어 필드를 만들어 줌
     # 모델에 있는 속성 명 외 다른 이름을 사용해주면 됨. 겹치면 overriding되버림
     rating = SerializerMethodField()
+    is_owner = SerializerMethodField()
 
     class Meta:
         model = Room
@@ -34,10 +35,13 @@ class RoomDetailSerializer(ModelSerializer):
 
     # 반드시 get_{속성명}으로 이름지어줘야 모델의 메서드에서 계산한 결과가 rating에 들어감
     def get_rating(self, room):
-        print(
-            room
-        )  # room.name이 출력됨. 즉, Serializing하고 있는 Object가 함께 호출됨.
+        # veiws.py에서 context에 담아 보낸 데이터를 Serializer의 self.context로 받아서 사용할 수 있음
+        # print(self.context)
         return room.rating()
+
+    def get_is_owner(self, room):
+        request = self.context["request"]
+        return room.owner == request.user  # True or False
 
     # 데이터베이스에 추가되는 것을 막기 위해 일부러 에러 발생시키기
     # def create(self, validated_data):
@@ -54,6 +58,7 @@ class RoomDetailSerializer(ModelSerializer):
 
 class RoomListSerializer(ModelSerializer):
     rating = SerializerMethodField()
+    is_owner = SerializerMethodField()
 
     class Meta:
         model = Room
@@ -64,7 +69,12 @@ class RoomListSerializer(ModelSerializer):
             "city",
             "price",
             "rating",
+            "is_owner",
         )
 
     def get_rating(self, room):
         return room.rating()
+
+    def get_is_owner(self, room):
+        request = self.context["request"]
+        return room.owner == request.user

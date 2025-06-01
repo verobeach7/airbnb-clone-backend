@@ -111,6 +111,7 @@ class Rooms(APIView):
         serializer = RoomListSerializer(
             all_rooms,
             many=True,
+            context={"request": request},
         )
         return Response(serializer.data)
 
@@ -163,7 +164,12 @@ class RoomDetail(APIView):
 
     def get(self, request, pk):
         room = self.get_object(pk)
-        serializer = RoomDetailSerializer(room)
+        serializer = RoomDetailSerializer(
+            room,
+            # context에 원하는 어떤 데이터든지 담아서 Serializer에 보낼 수 있음
+            # context={"hello": "bye bye"},
+            context={"request": request},
+        )
         return Response(serializer.data)
 
     def put(self, request, pk):
@@ -207,10 +213,13 @@ class RoomDetail(APIView):
                             amenity = Amenity.objects.get(pk=amenity_pk)
                             room.amenities.add(amenity)
 
-                    serializer = RoomDetailSerializer(room)
+                    serializer = RoomDetailSerializer(
+                        room,
+                        context={"request": request},
+                    )
                     return Response(serializer.data)
             except Exception as e:
-                raise ParseError(f"Amenity not found: {e}")
+                raise ParseError(f"Error occurred: {e}")
         else:
             return Response(serializer.errors)
 
