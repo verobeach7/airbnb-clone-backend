@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import transaction
 from rest_framework.views import APIView
 from rest_framework.status import HTTP_204_NO_CONTENT
@@ -254,7 +255,7 @@ class RoomReviews(APIView):
         # page가 없거나 문자가 들어가는 경우 에러가 발생하는데 이 때 1페이지를 보여주도록 함
         except ValueError:
             page = 1
-        page_size = 3
+        page_size = settings.PAGE_SIZE
         start = (page - 1) * page_size
         end = start + page_size
         room = self.get_object(pk)
@@ -266,3 +267,32 @@ class RoomReviews(APIView):
             many=True,
         )
         return Response(serializer.data)
+
+
+class RoomAmenities(APIView):
+    def get_object(self, pk):
+        try:
+            return Room.objects.get(pk=pk)
+        except Room.DoesNotExist:
+            raise NotFound
+
+    def get(self, request, pk):
+        try:
+            page = request.query_params.get("page", 1)
+            page = int(page)
+        except ValueError:
+            page = 1
+        page_size = 3
+        start = (page - 1) * page_size
+        end = start + page_size
+        room = self.get_object(pk)
+        serializer = AmenitySerializer(
+            room.amenities.all()[start:end],
+            many=True,
+        )
+        return Response(serializer.data)
+
+
+class RoomPhotos(APIView):
+    def post(self, request, pk):
+        pass

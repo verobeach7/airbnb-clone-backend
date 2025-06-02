@@ -1,5 +1,11 @@
 from django.contrib import admin
 from django.urls import path, include
+from django.conf.urls.static import static
+
+# 장고는 프로젝트 내 어디서든 settings.py에 바로 접근할 수 있는 지름길을 제공
+# settings.py에 대한 PROXY
+# 즉, settings.py에는 장고를 설정하기 위한 것 뿐만 아니라 API Token이나 기타 설정 사항도 저장해놓고 쓸 수 있음
+from django.conf import settings
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -11,4 +17,7 @@ urlpatterns = [
     path("api/v1/rooms/", include("rooms.urls")),
     path("api/v1/categories/", include("categories.urls")),
     path("api/v1/experiences/", include("experiences.urls")),
-]
+] + static(
+    settings.MEDIA_URL,
+    document_root=settings.MEDIA_ROOT,
+)

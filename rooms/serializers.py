@@ -21,7 +21,7 @@ class RoomDetailSerializer(ModelSerializer):
     # 사용자가 직접 기입하는 것을 막고 싶을 때 read_only=True를 설정해주면 됨
     owner = TinyUserSerializer(read_only=True)
     # 여러 개가 존재하는 경우 이를 알려줘야 함: many=True
-    amenities = AmenitySerializer(read_only=True, many=True)
+    # amenities = AmenitySerializer(read_only=True, many=True)
     category = CategorySerializer(read_only=True)
 
     # models.py의 rating Method를 이용하여 결과를 넣어 필드를 만들어 줌

@@ -122,7 +122,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "ko-kr"
 
 TIME_ZONE = "Asia/Seoul"
 
@@ -142,3 +142,17 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "users.User"
+
+# Place where media is saved
+# /없이 사용하면 폴더가 생성됨
+MEDIA_ROOT = "uploads"
+
+# 사용자가 접근할 수 있는 URL 경로 지정
+# 단지 URL만을 위한 것
+# uploads로 기본값을 이용해도 되지만 따로 지정해줄 수 있음
+# URL의 경우는 반드시 /로 끝나야 함
+MEDIA_URL = "user-uploads/"
+
+# 여러 군데서 사용되는 값을 사전 설정해두면 변경이 필요할 때 여기서만 변경해주면 한꺼번에 모두 변경됨
+# Pagination 사이즈 설정
+PAGE_SIZE = 3
