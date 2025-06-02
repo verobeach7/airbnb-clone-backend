@@ -165,11 +165,8 @@ GET /users/bookings
 GET PUT /users/1
 GET /users/1/reviews
 
-### Reviews
-
-POST /reviews
-
 ### Wishlists
 
 GET POST /wishlists
 GET PUT DELETE /wishlists/1
+is_liked

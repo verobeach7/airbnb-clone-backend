@@ -3,6 +3,7 @@ from .models import Amenity, Room
 from users.serializers import TinyUserSerializer
 from categories.serializers import CategorySerializer
 from reviews.serializers import ReviewSerializer
+from medias.serializers import PhotoSerializer
 
 
 # 같은 파일 내에서 사용하기 위해서는 먼저 정의되야 함
@@ -28,6 +29,7 @@ class RoomDetailSerializer(ModelSerializer):
     # 모델에 있는 속성 명 외 다른 이름을 사용해주면 됨. 겹치면 overriding되버림
     rating = SerializerMethodField()
     is_owner = SerializerMethodField()
+    photos = PhotoSerializer(many=True, read_only=True)
 
     class Meta:
         model = Room
@@ -60,6 +62,7 @@ class RoomDetailSerializer(ModelSerializer):
 class RoomListSerializer(ModelSerializer):
     rating = SerializerMethodField()
     is_owner = SerializerMethodField()
+    photos = PhotoSerializer(many=True, read_only=True)
 
     class Meta:
         model = Room
@@ -71,6 +74,7 @@ class RoomListSerializer(ModelSerializer):
             "price",
             "rating",
             "is_owner",
+            "photos",
         )
 
     def get_rating(self, room):
