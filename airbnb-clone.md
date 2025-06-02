@@ -118,28 +118,28 @@ Pagination
 
 ### Categories
 
-[v] GET POST /categories
-[v] GET(Rooms) PUT DELETE /categories/1
+[x] GET POST /categories
+[x] GET(Rooms) PUT DELETE /categories/1
 
 ### Rooms
 
-[v] GET POST /rooms
-[v] GET PUT DELETE /rooms/1
-[v] GET /rooms/1/amenities
-[v] GET /rooms/1/reviews
+[x] GET POST /rooms
+[x] GET PUT DELETE /rooms/1
+[x] GET /rooms/1/amenities
+[x] GET /rooms/1/reviews
 GET POST /rooms/1/bookings
 GET PUT DELETE /rooms/1/bookings/2
-[v] GET POST /amenities
-[v] GET PUT DELETE /amenities/1
+[x] GET POST /amenities
+[x] GET PUT DELETE /amenities/1
 
 ##### 어떤 방에 관련된 사진인지 알아야 하기 때문에 아래 Route는 좋음
 
-[v] POST /rooms/1/photos
+[x] POST /rooms/1/photos
 
 ##### 사진 삭제 시 아래 둘 중 어떤 것을 선택하는 것이 더 좋을까?
 
-[v] DELETE /rooms/1/photos/1
-[v] DELETE /medias/photos/1
+[x] DELETE /rooms/1/photos/1
+[x] DELETE /medias/photos/1
 
 ### Experiences
 
@@ -167,6 +167,6 @@ GET /users/1/reviews
 
 ### Wishlists
 
-GET POST /wishlists
-GET PUT DELETE /wishlists/1
+[x] GET POST /wishlists - wishlist들을 만들고 가져오는데 사용
+[x] GET PUT DELETE /wishlists/1 - wishlist 내에 room이나 experience의 세부정보를 가져오거나 업데이트하거나 삭제하는데 사용
 is_liked
