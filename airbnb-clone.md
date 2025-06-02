@@ -131,8 +131,15 @@ GET POST /rooms/1/bookings
 GET PUT DELETE /rooms/1/bookings/2
 [v] GET POST /amenities
 [v] GET PUT DELETE /amenities/1
-POST /rooms/1/photos
-DELETE /rooms/1/photos/1
+
+##### 어떤 방에 관련된 사진인지 알아야 하기 때문에 아래 Route는 좋음
+
+[v] POST /rooms/1/photos
+
+##### 사진 삭제 시 아래 둘 중 어떤 것을 선택하는 것이 더 좋을까?
+
+[v] DELETE /rooms/1/photos/1
+[v] DELETE /medias/photos/1
 
 ### Experiences
 

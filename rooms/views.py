@@ -9,6 +9,7 @@ from rest_framework.exceptions import (
     ParseError,
     PermissionDenied,
 )
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .models import Amenity, Room
 from categories.models import Category
 from .serializers import AmenitySerializer, RoomListSerializer, RoomDetailSerializer
@@ -109,6 +110,8 @@ class AmenityDetail(APIView):
 
 
 class Rooms(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
     def get(self, request):
         all_rooms = Room.objects.all()
         serializer = RoomListSerializer(
@@ -119,46 +122,45 @@ class Rooms(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        if request.user.is_authenticated:
-            serializer = RoomDetailSerializer(data=request.data)
-            if serializer.is_valid():
-                category_pk = request.data.get("category")
+        serializer = RoomDetailSerializer(data=request.data)
+        if serializer.is_valid():
+            category_pk = request.data.get("category")
 
-                if not category_pk:
-                    raise ParseError(
-                        "Category is required.",
+            if not category_pk:
+                raise ParseError(
+                    "Category is required.",
+                )
+            try:
+                category = Category.objects.get(pk=category_pk)
+                if category.kind == Category.CategoryKindChoices.EXPERIENCES:
+                    raise ParseError("The category kind should be 'rooms'.")
+            except Category.DoesNotExist:
+                raise ParseError("category not found.")
+            # transaction 없이는 코드를 실행할 때마다 쿼리가 즉시 데이터베이스에 반영됨
+            # transaction을 사용하면 각 과정의 변경사항을 리스트로 저장해 놓음
+            # transaction 내부의 모든 코드를 살펴본 후 에러가 발생하지 않는다면 DB로 푸쉬함
+            # try-except가 있으면 transaction이 에러가 있음을 알기 전에 종료되버림
+            try:
+                with transaction.atomic():
+                    room = serializer.save(
+                        owner=request.user,
+                        category=category,
                     )
-                try:
-                    category = Category.objects.get(pk=category_pk)
-                    if category.kind == Category.CategoryKindChoices.EXPERIENCES:
-                        raise ParseError("The category kind should be 'rooms'.")
-                except Category.DoesNotExist:
-                    raise ParseError("category not found.")
-                # transaction 없이는 코드를 실행할 때마다 쿼리가 즉시 데이터베이스에 반영됨
-                # transaction을 사용하면 각 과정의 변경사항을 리스트로 저장해 놓음
-                # transaction 내부의 모든 코드를 살펴본 후 에러가 발생하지 않는다면 DB로 푸쉬함
-                # try-except가 있으면 transaction이 에러가 있음을 알기 전에 종료되버림
-                try:
-                    with transaction.atomic():
-                        room = serializer.save(
-                            owner=request.user,
-                            category=category,
-                        )
-                        amenities = request.data.get("amenities")
-                        for amenity_pk in amenities:
-                            amenity = Amenity.objects.get(pk=amenity_pk)
-                            room.amenities.add(amenity)
-                        serializer = RoomDetailSerializer(room)
-                        return Response(serializer.data)
-                except Exception:
-                    raise ParseError("Amenity not found.")
-            else:
-                return Response(serializer.errors)
+                    amenities = request.data.get("amenities")
+                    for amenity_pk in amenities:
+                        amenity = Amenity.objects.get(pk=amenity_pk)
+                        room.amenities.add(amenity)
+                    serializer = RoomDetailSerializer(room)
+                    return Response(serializer.data)
+            except Exception:
+                raise ParseError("Amenity not found.")
         else:
-            raise NotAuthenticated
+            return Response(serializer.errors)
 
 
 class RoomDetail(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
     def get_object(self, pk):
         try:
             return Room.objects.get(pk=pk)
@@ -178,8 +180,6 @@ class RoomDetail(APIView):
     def put(self, request, pk):
         room = self.get_object(pk)
 
-        if not request.user.is_authenticated:
-            raise NotAuthenticated
         if room.owner != request.user:
             raise PermissionDenied
 
@@ -228,8 +228,7 @@ class RoomDetail(APIView):
 
     def delete(self, request, pk):
         room = self.get_object(pk)
-        if not request.user.is_authenticated:
-            raise NotAuthenticated
+
         # elif: 이것을 사용하면 첫 번재 if를 통과하지 못하는 경우 거기서 끝나게 됨
         # 두 조건을 모두 검증하기 원한다면 별도의 if로 만들어줘야 함
         if room.owner != request.user:
@@ -295,6 +294,8 @@ class RoomAmenities(APIView):
 
 
 class RoomPhotos(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
     def get_object(self, pk):
         try:
             return Room.objects.get(pk=pk)
@@ -303,8 +304,6 @@ class RoomPhotos(APIView):
 
     def post(self, request, pk):
         room = self.get_object(pk)
-        if not request.user.is_authenticated:
-            raise NotAuthenticated
         if request.user != room.owner:
             raise PermissionDenied
         serializer = PhotoSerializer(data=request.data)
