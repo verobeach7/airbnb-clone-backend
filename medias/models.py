@@ -5,7 +5,7 @@ from common.models import CommonModel
 class Photo(CommonModel):
     """Photo Model Definition"""
 
-    file = models.ImageField()
+    file = models.URLField()
     description = models.CharField(
         max_length=150,
     )
@@ -32,7 +32,7 @@ class Photo(CommonModel):
 class Video(CommonModel):
     """Video Model Definition"""
 
-    file = models.FileField()
+    file = models.URLField()
     # 비디오는 오직 한개만 탑재할 수 있기에 One to One Field를 사용
     # 외래키로 연결되지만 한 개만 고유하게 연결 가능함
     experience = models.OneToOneField(
