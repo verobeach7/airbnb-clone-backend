@@ -127,7 +127,7 @@ Pagination
 [x] GET PUT DELETE /rooms/1
 [x] GET /rooms/1/amenities
 [x] GET /rooms/1/reviews
-GET POST /rooms/1/bookings
+[x] GET POST /rooms/1/bookings
 GET PUT DELETE /rooms/1/bookings/2
 [x] GET POST /amenities
 [x] GET PUT DELETE /amenities/1

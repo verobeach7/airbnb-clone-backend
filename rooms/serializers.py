@@ -4,6 +4,7 @@ from users.serializers import TinyUserSerializer
 from categories.serializers import CategorySerializer
 from reviews.serializers import ReviewSerializer
 from medias.serializers import PhotoSerializer
+from wishlists.models import Wishlist
 
 
 # 같은 파일 내에서 사용하기 위해서는 먼저 정의되야 함
@@ -29,6 +30,7 @@ class RoomDetailSerializer(ModelSerializer):
     # 모델에 있는 속성 명 외 다른 이름을 사용해주면 됨. 겹치면 overriding되버림
     rating = SerializerMethodField()
     is_owner = SerializerMethodField()
+    is_liked = SerializerMethodField()
     photos = PhotoSerializer(many=True, read_only=True)
 
     class Meta:
@@ -57,6 +59,19 @@ class RoomDetailSerializer(ModelSerializer):
     # def create(self, validated_data):
     #     # create 메서드의 반환 값은 항상 모델의 instance여야 함!!!
     #     return Room.objects.create(**validated_data)
+
+    # room은 Serializer에서 serializing하고 있는 room
+    def get_is_liked(self, room):
+        # views.py에서 RoomDetailSerializer 호출 시 함께 보낸 context
+        request = self.context["request"]
+        # 현 유저의 모든 wishlists를 가져오기 위함, 두 번째 인자는 현재 Room이 유저의 wishlist에 있는지 확인하기 위한 것
+        # __ 이용
+        return Wishlist.objects.filter(
+            user=request.user,
+            rooms__pk=room.pk,
+            # rooms가 가지고 있는 property를 이용할 수 있음
+            # rooms__name="big tent",
+        ).exists()
 
 
 class RoomListSerializer(ModelSerializer):
