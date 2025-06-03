@@ -169,4 +169,8 @@ GET /users/1/reviews
 
 [x] GET POST /wishlists - wishlist들을 만들고 가져오는데 사용
 [x] GET PUT DELETE /wishlists/1 - wishlist 내에 room이나 experience의 세부정보를 가져오거나 업데이트하거나 삭제하는데 사용
-is_liked
+[x] PUT /wishlists/1/rooms - serializer를 사용하지 않고 room의 id를 보내면 wishlist의 rooms 리스트에 id를 추가
+
+- 방법1: url에 방의 pk를 포함하여 보냄: /wishlists/1/rooms/2
+- 방법2: /wishlists/1/rooms url로 따로 데이터를 포함하여 전송: {"room_pk": 2}
+  is_liked
