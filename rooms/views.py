@@ -9,18 +9,17 @@ from rest_framework.status import HTTP_204_NO_CONTENT
 from rest_framework.response import Response
 from rest_framework.exceptions import (
     NotFound,
-    NotAuthenticated,
     ParseError,
     PermissionDenied,
 )
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .models import Amenity, Room
-from categories.models import Category
 from .serializers import AmenitySerializer, RoomListSerializer, RoomDetailSerializer
+from categories.models import Category
 from reviews.serializers import ReviewSerializer
 from medias.serializers import PhotoSerializer
 from bookings.models import Booking
-from bookings.serializers import PublicBookingSerializer
+from bookings.serializers import PublicBookingSerializer, CreateRoomBookingSerializer
 
 
 class Amenities(APIView):
@@ -451,3 +450,18 @@ class RoomMonthlyBookings(APIView):
             many=True,
         )
         return Response(serializer.data)
+
+    def post(self, request, pk):
+        room = self.get_object(pk)
+        serializer = CreateRoomBookingSerializer(data=request.data)
+        if serializer.is_valid():
+            # # request.data로부터 check_in 날짜를 받아옴
+            # check_in=request.data.get("check_in")
+            # # if-else로 오늘 이후의 예약인지 검증
+            # 위 방법은 좋은 방법이고 잘 작동함
+
+            # 다른 방법도 있음: Serializer의 validation을 커스텀하는 방법
+            # Serializer에 직접 검증 코드를 추가할 수 있음: serializers.py 확인해보기
+            pass
+        else:
+            return Response(serializer.errors)
