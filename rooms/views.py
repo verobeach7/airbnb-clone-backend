@@ -462,6 +462,6 @@ class RoomMonthlyBookings(APIView):
 
             # 다른 방법도 있음: Serializer의 validation을 커스텀하는 방법
             # Serializer에 직접 검증 코드를 추가할 수 있음: serializers.py 확인해보기
-            pass
+            return Response({"ok": True})
         else:
             return Response(serializer.errors)
