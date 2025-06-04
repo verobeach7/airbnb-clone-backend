@@ -61,6 +61,7 @@ class CreateRoomBookingSerializer(serializers.ModelSerializer):
         #         5==6 가능
         # 체크아웃 전에 체크인을 하고, 체크인 후에 체크아웃을 하는 기존 예약이 있는지 찾기
         if Booking.objects.filter(
+            room=self.context["room"],
             # 기존 예약의 체크인이 새로운 예약의 체크아웃보다 빠른 게 있는지 확인
             check_in__lt=data["check_out"],  #  8 lt(<) 9
             # 기존 예약의 체크아웃이 새로운 예약의 체크인보다 늦는 게 있는지 확인

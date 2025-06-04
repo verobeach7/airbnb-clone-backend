@@ -453,7 +453,10 @@ class RoomMonthlyBookings(APIView):
 
     def post(self, request, pk):
         room = self.get_object(pk)
-        serializer = CreateRoomBookingSerializer(data=request.data)
+        serializer = CreateRoomBookingSerializer(
+            data=request.data,
+            context={"room": room},
+        )
         if serializer.is_valid():
             # # request.data로부터 check_in 날짜를 받아옴
             # check_in=request.data.get("check_in")
