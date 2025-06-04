@@ -1,4 +1,8 @@
 from django.conf import settings
+
+# 파이썬 표준 라이브러리의 datatime을 사용할 수도 있지만 장고의 timezone은 config/settings.py의 설정을 활용할 수 있음
+# import datetime
+from django.utils import timezone
 from django.db import transaction
 from rest_framework.views import APIView
 from rest_framework.status import HTTP_204_NO_CONTENT
@@ -15,6 +19,8 @@ from categories.models import Category
 from .serializers import AmenitySerializer, RoomListSerializer, RoomDetailSerializer
 from reviews.serializers import ReviewSerializer
 from medias.serializers import PhotoSerializer
+from bookings.models import Booking
+from bookings.serializers import PublicBookingSerializer
 
 
 class Amenities(APIView):
@@ -338,6 +344,50 @@ class RoomBookings(APIView):
     # get은 누구나 접근, post, put, delete은 인증된 사용자만 접근
     permission_classes = [IsAuthenticatedOrReadOnly]
 
+    ### 방법1. 사용자가 예약하려고 하는 방이 존재하지 않는 경우 이를 알려주고 싶다면 이 방법을 사용
+    # 이 방법은 DB를 2번 조회해야 하는 방법
+    def get_object(self, pk):
+        try:
+            return Room.objects.get(pk=pk)  # 조회1
+        except Room.DoesNotExist:
+            raise NotFound
+
+    def get(self, request, pk):
+        room = self.get_object(pk)
+        # timezone.now()는 서버의 로컬타임이 아닌 표준시를 가져옴
+        # now = timezone.now()
+        # 서버의 로컬타임을 가져오기 위해서 .localtime을 이용하면 됨
+        # print(timezone.localtime(now))
+        # .date()은 날짜 부분만 가져옴
+        now = timezone.localtime(timezone.now()).date()
+        # now=timezone.localdate(timezone.now()) # 위와 동일
+        bookings = Booking.objects.filter(
+            room=room,
+            kind=Booking.BookingKindChoices.ROOM,
+            check_in__gte=now,
+        )  # 조회2
+        # 챌린지: bookings를 한번 더 필터링하여 url로 월을 보내게 하여 그 월에 해당하는 것만 보여주도록 하기
+        serializer = PublicBookingSerializer(bookings, many=True)
+        return Response(serializer.data)
+
+    #         room__pk=pk
+    ### 방법2. 존재하는 방에 대한 Booking을 찾아볼 것이라 믿으면 이 방법 사용
+    # # 위처럼 복잡하게 처리하지 않아도 bookings를 찾을 수 있음: pk를 이용
+    # # 하지만 방이 존재하지 않아도, 예약이 존재하지 않아도 같은 결과값을 가짐
+    # # 그로 인해 방이 존재하지 않는 상황에서도 예약이 실패했다고 생각하게 됨
+    # def get(self, request, pk):
+    #     # Relationship을 바탕으로 filtering 할 때는 room을 먼저 찾을 필요 없이 바로 __를 이용하여 접근하면 됨
+    #     bookings = Booking.objects.filter(
+    #     )  # 만약 room에 예약이 없으면 결과 값은 빈 QuerySet이 됨
+    #     # pk에 해당하는 room이 없으면 결과 값은 빈 List가 됨
+
+    def post(self, request, pk):
+        pass
+
+
+class RoomMonthlyBookings(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
     def get_object(self, pk):
         try:
             return Room.objects.get(pk=pk)
@@ -345,7 +395,59 @@ class RoomBookings(APIView):
             raise NotFound
 
     def get(self, request, pk):
-        room = self.get_object(pk)
+        # 현재시간
+        now = timezone.localtime(timezone.now()).date()
+        # 년도와 월 정보를 query_params로 받아온다
+        try:
+            month = int(request.query_params.get("month", now.month))
+            year = int(request.query_params.get("year", now.year))
+            if year < now.year:
+                year = now.year
+                month = now.month
+            elif (year == now.year) and (month < now.month):
+                month = now.month
 
-    def post(self, request, pk):
-        pass
+        except:
+            month = now.month
+            year = now.year
+
+        search_date_start = now.replace(
+            year=year,
+            month=month,
+            day=1,
+        )
+        print(search_date_start)
+
+        next_month = month + 1 if month < 12 else 1
+        next_month_year = year if month < 12 else year + 1
+        search_date_end = now.replace(
+            year=next_month_year,
+            month=next_month,
+            day=1,
+        )
+
+        # pagenation
+        try:
+            page = int(request.query_params.get("page", 1))
+        except ValueError:
+            page = 1
+        page_size = settings.PAGE_SIZE
+        start = (page - 1) * page_size
+        end = start + page_size
+
+        room = self.get_object(pk)
+        bookings = Booking.objects.filter(
+            room=room,
+            kind=Booking.BookingKindChoices.ROOM,
+            # check_in 날짜가 (우리가 있는 곳의) 현재 날짜보다 큰 booking을 찾고 있음
+            check_in__gte=search_date_start,
+            check_in__lt=search_date_end,
+        )
+        serializer = PublicBookingSerializer(
+            # 해당 월 한번에 보여주기
+            # bookings,
+            # pagination
+            bookings.all()[start:end],
+            many=True,
+        )
+        return Response(serializer.data)
