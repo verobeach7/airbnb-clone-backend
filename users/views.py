@@ -95,3 +95,26 @@ class UserReviews(APIView):
             many=True,
         )
         return Response(serializer.data)
+
+
+class ChangePassword(APIView):
+    # 인증되지 않은 사용자는 호출할 수 없도록 막아야 함
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request):
+        user = request.user
+        old_password = request.data.get("old_password")
+        new_password = request.data.get("new_password")
+        # old_password나 new_password가 없으면 에러를 발생시켜야 함
+        if not old_password or not new_password:
+            raise ParseError
+        # 장고는 old_password가 현재 비밀번호가 맞는지 확인해주는 utility를 가지고 있음
+        # .check_password() 메서드 사용
+        if user.check_password(old_password):
+            # set_password는 new_password를 hash할 때만 작동
+            user.set_password(new_password)
+            # 저장하지 않으면 hash만 되고 새로운 비밀번호로 설정되지 않음
+            user.save()
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
