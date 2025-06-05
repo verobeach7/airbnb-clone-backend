@@ -1,3 +1,6 @@
+# authenticate: username과 password를 돌려주는 function - 인증에 성공하면 User를 반환
+# login: User를 로그인시켜주는 function - User와 함께 Request를 보내면 브라우저가 필요로 하는 cookies와 token 등 중요한 데이터를 자동으로 생성해 줌
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -118,3 +121,33 @@ class ChangePassword(APIView):
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class LogIn(APIView):
+    def post(self, request):
+        username = request.data.get("username")
+        password = request.data.get("password")
+        if not username or not password:
+            raise ParseError
+        # authenticate() 함수는 User를 반환할 수도 있고 안 할 수도 있음
+        user = authenticate(
+            request,
+            username=username,
+            password=password,
+        )
+        if user:
+            # request와 user를 담아 login() 함수를 호출하면 장고가 알아서 로그인 시킴
+            login(request, user)
+            return Response({"ok": "welcome!"})
+        else:
+            return Response({"error": "wrong password"})
+
+
+class LogOut(APIView):
+    # LogOut을 하기 위해서는 LogIn되어 있어야 하므로 자격 증명을 확인해야 함
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        # request와 함께 logout() 함수만 호출하면 됨
+        logout(request)
+        return Response({"ok": "bye!"})

@@ -146,7 +146,8 @@ GET PUT DELETE /rooms/1/bookings/2
 [x] GET PUT /me - Private Profile(GET: user의 프로필에 있는 모든 것을 넘겨줌, PUT: 계정 정보 수정)
 [x] POST /users - 새로운 계정 생성
 [x] GET /users/{username} - Public Profile: 다른 사용자들에게 공개할 정보
-POST /users/lon-in - 유저 로그인(인증 후)
+[x] POST /users/log-in - 유저 로그인(인증 후)
+[x] POST /users/log-out
 [x] PUT /users/change-password - 별도의 추가 과정이 필요하여 따로 url 생성
 POST /users/github - GitHub 로그인
 

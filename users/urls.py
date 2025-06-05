@@ -7,6 +7,8 @@ urlpatterns = [
     # path("<str:username>", views.PublicUser.as_view()),
     path("me", views.Me.as_view()),
     path("change-password", views.ChangePassword.as_view()),
+    path("log-in", views.LogIn.as_view()),
+    path("log-out", views.LogOut.as_view()),
     # 이 위치에 놓으면 정상 작동
     # path("<str:username>", views.PublicUser.as_view()),
     # 하지만 username이 me인 사용자가 실제로 존재한다면?
