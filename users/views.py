@@ -5,8 +5,9 @@ from rest_framework.views import APIView
 # status 자체를 import하면 status를 타이핑하면 자동완성으로 한번에 볼 수 있음
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.exceptions import ParseError
+from rest_framework.exceptions import ParseError, NotFound
 from . import serializers
+from .models import User
 
 
 class Me(APIView):
@@ -61,3 +62,13 @@ class Users(APIView):
             return Response(serializer.data)
         else:
             return Response(serializer.errors)
+
+
+class PublicUser(APIView):
+    def get(self, request, username):
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            raise NotFound
+        serializer = serializers.PrivateUserSerializer(user)
+        return Response(serializer.data)
