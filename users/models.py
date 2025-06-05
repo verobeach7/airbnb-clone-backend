@@ -33,7 +33,8 @@ class User(AbstractUser):
         max_length=150,
         editable=False,
     )
-    avatar = models.ImageField(
+    # 이미지는 외부 스토리지에 저장 후 url만 저장, 이미지 저장은 장고 미사용
+    avatar = models.URLField(
         blank=True,
     )
     name = models.CharField(
