@@ -12,4 +12,6 @@ urlpatterns = [
     path("@<str:username>", views.PublicUser.as_view()),
     # @를 사용함으로써 `users/me`와 `users/@me`로 구분하여 사용
     # `users/me`는 사용자 본인의 프로필을 보게 되고, `users/@me`는 me라는 username을 가진 사용자의 프로필을 보게 됨
+    path("@<str:username>/rooms", views.UserRooms.as_view()),
+    path("@<str:username>/reviews", views.UserReviews.as_view()),
 ]
