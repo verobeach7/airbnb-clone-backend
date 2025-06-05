@@ -1,3 +1,4 @@
+from django.contrib.auth.password_validation import validate_password
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -40,7 +41,11 @@ class Users(APIView):
         # 사용자가 계정을 생성하기 위해 request를 보내면 그 request에 password가 있는지 검증해야 함
         password = request.data.get("password")
         if not password:
-            raise ParseError
+            raise ParseError("Password is required.")
+        try:
+            validate_password(password)
+        except Exception as e:
+            raise ParseError(e)
         serializer = serializers.PrivateUserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
