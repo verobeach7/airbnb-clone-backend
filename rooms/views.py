@@ -453,6 +453,7 @@ class RoomMonthlyBookings(APIView):
 
     def post(self, request, pk):
         room = self.get_object(pk)
+        # 예약 전 필요한 fields와 validation을 위한 Serailizer
         serializer = CreateRoomBookingSerializer(
             data=request.data,
             context={"room": room},
@@ -465,6 +466,14 @@ class RoomMonthlyBookings(APIView):
 
             # 다른 방법도 있음: Serializer의 validation을 커스텀하는 방법
             # Serializer에 직접 검증 코드를 추가할 수 있음: serializers.py 확인해보기
-            return Response({"ok": True})
+            booking = serializer.save(
+                # CreateRoomBookingSerailizer에는 check_in, check_out, guests field만 있으므로 추가적으로 데이터를 보내줘야 함
+                room=room,
+                user=request.user,
+                kind=Booking.BookingKindChoices.ROOM,
+            )
+            # 생성된 예약을 보여주기 위한 Serailizer
+            serializer = PublicBookingSerializer(booking)
+            return Response(serializer.data)
         else:
             return Response(serializer.errors)
