@@ -136,7 +136,7 @@ GET PUT DELETE /rooms/1/bookings/2
 
 [x] GET POST /experiences - experiences 가져오기 및 등록하기
 [x] GET PUT DELETE /experiences/1
-GET /experiences/1/perks
+[x] GET /experiences/1/perks
 GET /experiences/1/reviews
 GET POST /experiences/1/bookings
 GET PUT DELETE /experiences/1/bookings/2

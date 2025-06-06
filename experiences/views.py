@@ -1,3 +1,6 @@
+# config/settings.py를 사용하기 원하는 곳에 import
+# settings.py에 환경설정 값을 저장해놓고 꺼내서 사용할 수 있음
+from django.conf import settings
 from django.db import transaction
 from rest_framework.exceptions import ParseError, PermissionDenied
 from rest_framework.views import APIView
@@ -181,3 +184,30 @@ class ExperienceDetail(APIView):
             raise PermissionDenied
         experience.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ExperiencePerks(APIView):
+    def get_object(self, pk):
+        try:
+            return Experience.objects.get(pk=pk)
+        except Experience.DoesNotExist:
+            raise NotFound
+
+    def get(self, request, pk):
+        # pagination
+        try:
+            page = request.query_params.get("page", 1)
+            page = int(page)
+        except ValueError:
+            page = 1
+        page_size = settings.PAGE_SIZE
+        start = (page - 1) * page_size
+        end = start + page_size
+
+        experience = self.get_object(pk)
+        serializer = serializers.PerkSerializer(
+            # 역추적자 이용
+            experience.perks.all()[start:end],
+            many=True,
+        )
+        return Response(serializer.data)

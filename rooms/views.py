@@ -427,7 +427,7 @@ class RoomMonthlyBookings(APIView):
             day=1,
         )
 
-        # pagenation
+        # pagination
         try:
             page = int(request.query_params.get("page", 1))
         except ValueError:
