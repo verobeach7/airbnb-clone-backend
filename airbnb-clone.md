@@ -132,6 +132,17 @@ GET PUT DELETE /rooms/1/bookings/2
 [x] GET POST /amenities
 [x] GET PUT DELETE /amenities/1
 
+### Experiences
+
+[x] GET POST /experiences - experiences 가져오기 및 등록하기
+GET PUT DELETE /experiences/1
+GET /experiences/1/perks
+GET /experiences/1/reviews
+GET POST /experiences/1/bookings
+GET PUT DELETE /experiences/1/bookings/2
+[x] GET POST /perks
+[x] GET PUT DELETE /perks/1
+
 ##### 어떤 방에 관련된 사진인지 알아야 하기 때문에 아래 Route는 좋음
 
 [x] POST /rooms/1/photos
@@ -150,30 +161,6 @@ GET PUT DELETE /rooms/1/bookings/2
 [x] POST /users/log-out
 [x] PUT /users/change-password - 별도의 추가 과정이 필요하여 따로 url 생성
 POST /users/github - GitHub 로그인
-
-### Experiences
-
-GET POST /experiences
-GET PUT DELETE /experiences/1
-GET /experiences/1/perks
-GET POST /experiences/1/bookings
-GET PUT DELETE /experiences/1/bookings/2
-GET POST /perks
-GET PUT DELETE /perks/1
-
-### Medias
-
-POST /medias
-DELETE /medias/1
-
-### Users
-
-POST /users
-GET /users/rooms
-GET /users/experiences
-GET /users/bookings
-GET PUT /users/1
-GET /users/1/reviews
 
 ### Wishlists
 

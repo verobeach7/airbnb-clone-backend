@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Avg
 from common.models import CommonModel
 
 
@@ -41,6 +42,13 @@ class Experience(CommonModel):
 
     def __str__(self) -> str:
         return self.name
+
+    def rating(experience):
+        average_rating = experience.reviews.aggregate(Avg("rating"))["rating__avg"]
+        if average_rating is None:
+            return 0
+        else:
+            return round(average_rating, 2)
 
 
 class Perk(CommonModel):
