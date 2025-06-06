@@ -11,6 +11,7 @@ from rest_framework import status
 from .models import Perk, Experience
 from . import serializers
 from categories.models import Category
+from reviews import serializers as ReviewSerializer
 
 
 class Perks(APIView):
@@ -211,3 +212,44 @@ class ExperiencePerks(APIView):
             many=True,
         )
         return Response(serializer.data)
+
+
+class ExperienceReviews(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_object(self, pk):
+        try:
+            return Experience.objects.get(pk=pk)
+        except Experience.DoesNotExist:
+            raise NotFound
+
+    def get(self, request, pk):
+        # pagination
+        try:
+            page = request.query_params.get("page", 1)
+            page = int(page)
+        except ValueError:
+            page = 1
+        page_size = settings.PAGE_SIZE
+        start = (page - 1) * page_size
+        end = start + page_size
+
+        experience = self.get_object(pk)
+        serializer = ReviewSerializer.ReviewSerializer(
+            # 역접근자 이용
+            experience.reviews.all()[start:end],
+            many=True,
+        )
+        return Response(serializer.data)
+
+    def post(self, request, pk):
+        serializer = ReviewSerializer.ReviewSerializer(data=request.data)
+        if serializer.is_valid():
+            review = serializer.save(
+                user=request.user,
+                experience=self.get_object(pk),
+            )
+            serializer = ReviewSerializer.ReviewSerializer(review)
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
