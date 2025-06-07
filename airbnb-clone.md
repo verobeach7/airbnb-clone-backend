@@ -138,7 +138,7 @@ GET PUT DELETE /rooms/1/bookings/2
 [x] GET PUT DELETE /experiences/1
 [x] GET /experiences/1/perks
 [x] GET POST /experiences/1/reviews
-GET POST /experiences/1/bookings
+[x] GET POST /experiences/1/bookings
 GET PUT DELETE /experiences/1/bookings/2
 [x] GET POST /perks
 [x] GET PUT DELETE /perks/1

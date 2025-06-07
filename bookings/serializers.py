@@ -3,6 +3,24 @@ from rest_framework import serializers
 from .models import Booking
 
 
+class CreateExperienceBookingSerializer(serializers.ModelSerializer):
+    # 모델에서 null=True로 되어있는데 예약시 experience_time은 필수 필드이므로 overriding을 통해 필수 필드로 덮어쓰기
+    experience_time = serializers.DateTimeField()
+
+    class Meta:
+        model = Booking
+        fields = (
+            "experience_time",
+            "guests",
+        )
+
+    def validate_experience_time(self, value):
+        now = timezone.localtime(timezone.now())
+        if now > value:
+            raise serializers.ValidationError("Can't book in the past!")
+        return value
+
+
 class CreateRoomBookingSerializer(serializers.ModelSerializer):
     # Overriding을 통해 check_in과 check_out을 필수로 만들어 줌
     check_in = serializers.DateField()

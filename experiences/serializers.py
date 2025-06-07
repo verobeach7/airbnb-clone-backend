@@ -45,6 +45,8 @@ class ExperienceDetailSerializer(ModelSerializer):
 class ExperienceListSerializer(ModelSerializer):
     rating = SerializerMethodField()
     is_host = SerializerMethodField()
+    is_liked = SerializerMethodField()
+
     photos = MediaSerializer.PhotoSerializer(
         many=True,
         read_only=True,
@@ -75,3 +77,10 @@ class ExperienceListSerializer(ModelSerializer):
         # View에서 보내온 context를 활용
         request = self.context["request"]
         return expereince.host == request.user
+
+    def get_is_liked(self, experience):
+        request = self.context["request"]
+        return Wishlist.objects.filter(
+            user=request.user,
+            experiences__pk=experience.pk,
+        ).exists()
