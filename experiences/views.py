@@ -15,6 +15,7 @@ from categories.models import Category
 from reviews import serializers as ReviewSerializer
 from bookings.models import Booking
 from bookings import serializers as BookingSerializer
+from medias import serializers as MediaSerializer
 
 
 class Perks(APIView):
@@ -302,6 +303,30 @@ class ExperienceBookings(APIView):
                 kind=Booking.BookingKindChoices.EXPERIENCE,
             )
             serializer = BookingSerializer.PublicBookingSerializer(booking)
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+
+
+class ExperiencePhotos(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_object(self, pk):
+        try:
+            return Experience.objects.get(pk=pk)
+        except Experience.DoesNotExist:
+            raise NotFound
+
+    def post(self, request, pk):
+        experience = self.get_object(pk)
+        if request.user != experience.host:
+            raise PermissionDenied
+        serializer = MediaSerializer.PhotoSerializer(data=request.data)
+        if serializer.is_valid():
+            photo = serializer.save(
+                experience=experience,
+            )
+            serializer = MediaSerializer.PhotoSerializer(photo)
             return Response(serializer.data)
         else:
             return Response(serializer.errors)
