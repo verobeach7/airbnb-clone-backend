@@ -7,6 +7,10 @@ from django.conf.urls.static import static
 # 즉, settings.py에는 장고를 설정하기 위한 것 뿐만 아니라 API Token이나 기타 설정 사항도 저장해놓고 쓸 수 있음
 from django.conf import settings
 
+# User에게 Strawberry API를 보여주기 위해서 GraphQLView를 임포트하여 사용
+from strawberry.django.views import GraphQLView
+from .schema import schema
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     # url에서 rooms로 접근하면 rooms/urls.py가 view를 처리
@@ -20,6 +24,8 @@ urlpatterns = [
     path("api/v1/medias/", include("medias.urls")),
     path("api/v1/wishlists/", include("wishlists.urls")),
     path("api/v1/users/", include("users.urls")),
+    # GraphQLView에 Schema를 넘겨줘야 함
+    path("graphql", GraphQLView.as_view(schema=schema)),
 ] + static(
     settings.MEDIA_URL,
     document_root=settings.MEDIA_ROOT,
