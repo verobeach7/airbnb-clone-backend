@@ -37,7 +37,26 @@ class Query:
         return movies_db[movie_pk - 1]
 
 
-schema = strawberry.Schema(query=Query)
+@strawberry.type
+class Mutation:
+    @strawberry.mutation
+    def add_movie(self, title: str, year: int, rating: int) -> Movie:
+        new_movie = Movie(
+            pk=len(movies_db) + 1,
+            title=title,
+            year=year,
+            rating=rating,
+        )
+        # movies_db는 리스트이므로 .append 사용
+        movies_db.append(new_movie)
+        # 반드시 Movie 객체를 반환해야 함
+        return new_movie
+
+
+schema = strawberry.Schema(
+    query=Query,
+    mutation=Mutation,
+)
 
 # 여기서 만든 Strawberry API를 어떻게 User에게 보여줄 것인가?
 # config/urls.py에서 보여주면 됨
