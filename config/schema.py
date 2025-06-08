@@ -20,37 +20,49 @@ movies_db = [
 ]
 
 
-### Strawberry API
+### Resolover
+# class 안에 있는 메서드가 아니기 때문에 self는 필요하지 않음
+def movies():
+    return movies_db
+
+
+# 별도의 함수로 뺐기 때문에 self 없이 query argument만 있으면 됨
+def movie(movie_pk: int):
+    return movies_db[movie_pk - 1]
+
+
+### Query
 # 데코레이터(@)를 이용해 strawberry에게 type임을 알림
 @strawberry.type
 class Query:
     # Strawberry를 사용하면 반드시 타입을 명시해줘야 함
     # 이렇게 해주기만 하면 Qeury와 Resolver 등을 Strawberry가 알아서 다 만들어 줌
     # 반드시 ping을 field로 만들어 줘야 함: 데코레이터 이용
-    @strawberry.field
-    def movies(self) -> typing.List[Movie]:  # Type Annotation
-        return movies_db
+    # @strawberry.field
+    # def movies(self) -> typing.List[Movie]:  # Type Annotation
+    #     return movies_db
+    movies: typing.List[Movie] = strawberry.field(resolver=movies)
 
-    @strawberry.field
-    # movie_id라고 이름지어주면 Strawberry가 알아서 movieId라고 GraphQL 방식으로 이름지어줌
-    def movie(self, movie_pk: int) -> Movie:
-        return movies_db[movie_pk - 1]
+    movie: Movie = strawberry.field(resolver=movie)
 
 
+def add_movie(title: str, year: int, rating: int) -> Movie:
+    new_movie = Movie(
+        pk=len(movies_db) + 1,
+        title=title,
+        year=year,
+        rating=rating,
+    )
+    # movies_db는 리스트이므로 .append 사용
+    movies_db.append(new_movie)
+    # 반드시 Movie 객체를 반환해야 함
+    return new_movie
+
+
+### Mutation
 @strawberry.type
 class Mutation:
-    @strawberry.mutation
-    def add_movie(self, title: str, year: int, rating: int) -> Movie:
-        new_movie = Movie(
-            pk=len(movies_db) + 1,
-            title=title,
-            year=year,
-            rating=rating,
-        )
-        # movies_db는 리스트이므로 .append 사용
-        movies_db.append(new_movie)
-        # 반드시 Movie 객체를 반환해야 함
-        return new_movie
+    add_movie: Movie = strawberry.mutation(resolver=add_movie)
 
 
 schema = strawberry.Schema(
