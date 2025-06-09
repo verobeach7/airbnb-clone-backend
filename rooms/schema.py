@@ -10,3 +10,6 @@ class Query:
     all_rooms: typing.List[types.RoomType] = strawberry.field(
         resolver=queries.get_all_rooms,
     )
+    room: types.RoomType = strawberry.field(
+        resolver=queries.get_room,
+    )
