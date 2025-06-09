@@ -27,7 +27,9 @@ class RoomType:
     @strawberry.field
     # self는 rooms, 원하는 인자를 얼마든지 받을 수 있음
     # page 인자를 여기서 요청하면 알아서 전달해 줌
-    def reviews(self, page: int) -> typing.List["ReviewType"]:
+    # Optional 설정을 하면 인자를 받을 수도 받지 않을 수도 있다는 의미
+    # `=1`로 하였기 때문에 사용자가 인자를 보내지 않는 경우 page = 1로 설정됨
+    def reviews(self, page: typing.Optional[int] = 1) -> typing.List["ReviewType"]:
         page_size = settings.PAGE_SIZE
         start = (page - 1) * page_size
         end = start + page_size
