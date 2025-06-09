@@ -10,6 +10,10 @@ class Query:
     all_rooms: typing.List[types.RoomType] = strawberry.field(
         resolver=queries.get_all_rooms,
     )
-    room: types.RoomType = strawberry.field(
+    # typing.Optional 설정을 해주면 RoomType 객체가 있을 수도 없을 수도 있다는 것
+    # 이 설정을 하면 GraphQL View에서 RoomType!에 !가 사라진 것을 확인할 수 있음
+    # 즉, 반드시 RoomType을 받는 것은 아니라는 것
+    # 하지만 queries.py에서 실제로 RoomType아 아닐 때 어떻게 할 것인지 추가 코딩을 해줘야 함
+    room: typing.Optional[types.RoomType] = strawberry.field(
         resolver=queries.get_room,
     )
