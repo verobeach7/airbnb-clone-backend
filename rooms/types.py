@@ -1,8 +1,13 @@
 from django.conf import settings
 import strawberry
+
+# strawberry.types
+# Info: 강력한 Info Parameter Type을 사용할 수 있게 됨
+from strawberry.types import Info
 from strawberry import auto
 import typing
 from . import models
+from wishlists.models import Wishlist
 from users.types import UserType
 from reviews.types import ReviewType
 
@@ -39,3 +44,27 @@ class RoomType:
     # self에는 rooms가 들어옴
     def rating(self) -> str:
         return self.rating()
+
+    @strawberry.field
+    # (parameter) self: Self@RoomType - self는 room을 받음
+    # Info parameter는 현재 발생하는 request에 대한 많은 정보를 담고 있음
+    # DRF 사용 시 Serializer에서 context["request"]를 받아서 사용했다면,
+    # Strawberry에서는 strawberry.types에서 Info를 받아서 사용
+    # parameter에 :Info 타입을 지정해주는 순간 Strawberry가 자동으로 StrawberryDjangoContext를 넣어줌!!!
+    # 어느 자리에 넣어주는 지는 중요하지 않음. Info 타입을 지정하는 것이 중요!!!
+    def is_owner(self, info: Info) -> bool:
+        # print(info.context)
+        # # StrawberryDjangoContext(request=<WSGIRequest: POST '/graphql'>, response=<TemporalHttpResponse status_code=None, "application/json">)
+        # # request 객체가 출력되는 것을 확인할 수 있음
+        # print(info.context.request.user)
+        # # verobeach7
+        return self.owner == info.context.request.user
+
+    # Dynamic Field
+    @strawberry.field
+    def is_liked(self, info: Info) -> bool:
+        return Wishlist.objects.filter(
+            user=info.context.request.user,
+            # self는 현재 처리 중인 room임을 잊지 말기
+            rooms__pk=self.pk,
+        ).exists()
