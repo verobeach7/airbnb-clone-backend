@@ -2,6 +2,7 @@ import strawberry
 import typing
 from . import types
 from . import queries
+from . import mutations
 from common.permissions import OnlyLoggedIn
 
 
@@ -19,4 +20,12 @@ class Query:
     # 하지만 queries.py에서 실제로 RoomType아 아닐 때 어떻게 할 것인지 추가 코딩을 해줘야 함
     room: typing.Optional[types.RoomType] = strawberry.field(
         resolver=queries.get_room,
+    )
+
+
+@strawberry.type
+class Mutation:
+    add_room: typing.Optional[types.RoomType] = strawberry.mutation(
+        resolver=mutations.add_room,
+        permission_classes=[OnlyLoggedIn],
     )

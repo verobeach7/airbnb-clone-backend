@@ -14,14 +14,13 @@ class Query(rooms_schema.Query):
 
 
 @strawberry.type
-class Mutation:
+class Mutation(rooms_schema.Mutation):
     pass
 
 
 schema = strawberry.Schema(
     query=Query,
-    # mutation은 아직 코딩하지 않았으므로 잠시 주석처리
-    # mutation=Mutation,
+    mutation=Mutation,
 )
 
 # 여기서 만든 Strawberry API를 어떻게 User에게 보여줄 것인가?

@@ -18,7 +18,7 @@ class OnlyLoggedIn(BasePermission):
 
     # source와 info만 사용하면 됨. 나머지는 삭제해도 됨.
     # source에 Any, info에 Info 타입 설정을 해야 함
-    def has_permission(self, source: typing.Any, info: Info):
+    def has_permission(self, source: typing.Any, info: Info, **kwargs):
         # 테스트를 위해 모든 사용자 차단
         # return False  # 실제로 로그인 되어 있어도 여기서 False를 반환했기 때문에 로그인 해야 한다는 에러 메시지를 확인할 수 있음
 
