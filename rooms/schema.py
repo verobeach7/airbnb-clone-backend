@@ -2,6 +2,7 @@ import strawberry
 import typing
 from . import types
 from . import queries
+from common.permissions import OnlyLoggedIn
 
 
 @strawberry.type
@@ -9,6 +10,8 @@ class Query:
     # Room Model이 아닌 Strawberry Extension이 Django의 모델을 보고 만들어 준 RoomType을 사용
     all_rooms: typing.List[types.RoomType] = strawberry.field(
         resolver=queries.get_all_rooms,
+        # 원하는 대로 permission을 설정해주면 됨
+        permission_classes=[OnlyLoggedIn],
     )
     # typing.Optional 설정을 해주면 RoomType 객체가 있을 수도 없을 수도 있다는 것
     # 이 설정을 하면 GraphQL View에서 RoomType!에 !가 사라진 것을 확인할 수 있음
