@@ -2,6 +2,7 @@
 # login: User를 로그인시켜주는 function - User와 함께 Request를 보내면 브라우저가 필요로 하는 cookies와 token 등 중요한 데이터를 자동으로 생성해 줌
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.password_validation import validate_password
+from django.conf import settings
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -9,6 +10,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ParseError, NotFound
+import jwt
 from . import serializers
 from .models import User
 from rooms.models import Room
@@ -151,3 +153,30 @@ class LogOut(APIView):
         # request와 함께 logout() 함수만 호출하면 됨
         logout(request)
         return Response({"ok": "bye!"})
+
+
+class JWTLogIn(APIView):
+    def post(self, request):
+        username = request.data.get("username")
+        password = request.data.get("password")
+        if not username or not password:
+            raise ParseError
+        # authenticate() 함수는 User를 반환할 수도 있고 안 할 수도 있음
+        # username과 password가 올바르면 User 반환
+        user = authenticate(
+            request,
+            username=username,
+            password=password,
+        )
+        if user:
+            # 토큰 생성 후 User에게 전달. 유저가 원하면 토큰을 복호화 할 수 있기 때문에 민감한 정보를 토큰에 담아서는 안 됨!!!
+            # JWT 토큰이 암호화 되는 것은 아님. 대신 우리가 준 토큰인지 수정되었는지를 알 수 있음.
+            # JWT 토큰 안에 넣는 정보는 공개적인 것이어야 함
+            token = jwt.encode(
+                {"pk": user.pk},
+                settings.SECRET_KEY,
+                algorithm="HS256",
+            )
+            return Response({"token": token})
+        else:
+            return Response({"error": "wrong password"})
