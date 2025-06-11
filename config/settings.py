@@ -32,6 +32,8 @@ ALLOWED_HOSTS = []
 
 THIRD_PARTY_APPS = [
     "rest_framework",
+    # "rest_framework.authtoken"을 추가해주는 것만으로도 Admin Panel에서 새로운 모델을 확인 가능. 새로운 테이블이 생성된 것. 즉, migrate 필요(makemigration은 필요 없음. 자동 생성됨.)
+    "rest_framework.authtoken",
     "strawberry.django",
 ]
 
@@ -157,3 +159,11 @@ MEDIA_URL = "user-uploads/"
 # 여러 군데서 사용되는 값을 사전 설정해두면 변경이 필요할 때 여기서만 변경해주면 한꺼번에 모두 변경됨
 # Pagination 사이즈 설정
 PAGE_SIZE = 3
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",  # default
+        "config.authentication.TrustMeBroAuthentication",
+        "rest_framework.authentication.TokenAuthentication",
+    ]
+}
