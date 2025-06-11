@@ -1,5 +1,7 @@
+from django.conf import settings
 from rest_framework.authentication import BaseAuthentication
 from rest_framework import exceptions
+import jwt
 from users.models import User
 
 
@@ -33,3 +35,27 @@ class TrustMeBroAuthentication(BaseAuthentication):
         except User.DoesNotExist:
             # ❌ 로그인 실패(DB에서 찾지 못함)
             raise exceptions.AuthenticationFailed(f"No user {username}")
+
+
+class JWTAuthentication(BaseAuthentication):
+    def authenticate(self, request):
+        token = request.headers.get("Jwt")
+        # token이 없다는 것은 인증 받은 적이 없다는 것이므로 가입으로 유도 또는 완전 공개 페이지로 Redirect
+        if not token:
+            return None
+        decoded = jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=["HS256"],
+        )
+        # print(decoded)  # {'pk': 1}
+        pk = decoded.get("pk")
+        # token에 pk가 없다는 것은 token이 잘못된 것이므로 에러를 발생시키는 것이 좋음
+        # 즉, 다른 페이지로 유도할 것인지 에러를 발생시킬 것인지는 개발자가 항상 고민해야 함
+        if not pk:
+            raise exceptions.AuthenticationFailed("Invalid Token")
+        try:
+            user = User.objects.get(pk=pk)
+            return (user, None)
+        except User.DoesNotExist:
+            raise exceptions.AuthenticationFailed("User not found.")
