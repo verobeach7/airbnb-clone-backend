@@ -68,18 +68,18 @@ class AmenityDetail(APIView):
 
     def get(self, request, pk):
         amenity = self.get_object(pk)
-        print("amenity", amenity)
+        # print("amenity", amenity)
         ### Python Object
         # amenity 멋진 도어록
         serializer = AmenitySerializer(amenity)
-        print("serializer", serializer)
+        # print("serializer", serializer)
         # serializer AmenitySerializer(<Amenity: 멋진 도어록>):
         # id = IntegerField(label='ID', read_only=True)
         # created_at = DateTimeField(read_only=True)
         # updated_at = DateTimeField(read_only=True)
         # name = CharField(max_length=150)
         # description = CharField(allow_blank=True, allow_null=True, max_length=150, required=False)
-        print("serializer.data", serializer.data)
+        # print("serializer.data", serializer.data)
         # JSON 변환됨
         # serializer.data {'id': 3, 'created_at': '2025-05-17T12:00:57.920259+09:00', 'updated_at': '2025-05-30T13:20:35.069248+09:00', 'name': '멋진 도어록', 'description': '게스트가 현관문 비밀번호를 입력하여 직접 체크인합니다'}
         return Response(serializer.data)
@@ -94,7 +94,7 @@ class AmenityDetail(APIView):
             data=request.data,
             partial=True,
         )
-        print("serializer", serializer)
+        # print("serializer", serializer)
         # serializer AmenitySerializer(<Amenity: 멋진 도어록>, data={'name': '디지털도어록'}, partial=True):
         # id = IntegerField(label='ID', read_only=True)
         # created_at = DateTimeField(read_only=True)
@@ -103,15 +103,15 @@ class AmenityDetail(APIView):
         # description = CharField(allow_blank=True, allow_null=True, max_length=150, required=False)
         if serializer.is_valid():
             updated_amenity = serializer.save()
-            print("updated_amenity", updated_amenity)
+            # print("updated_amenity", updated_amenity)
             # Python Object
             # updated_amenity 멋진 도어록
-            print("after serializing", AmenitySerializer(updated_amenity).data)
+            # print("after serializing", AmenitySerializer(updated_amenity).data)
 
             # after serializing {'id': 3, 'created_at': '2025-05-17T12:00:57.920259+09:00', 'updated_at': '2025-05-30T13:20:35.069248+09:00', 'name': '멋진 도어록', 'description': '게스트가 현관문 비밀번호를 입력하여 직접 체크인합니다'}
             return Response(AmenitySerializer(updated_amenity).data)
         else:
-            return Response(serializer.errors)
+            return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
         amenity = self.get_object(pk)

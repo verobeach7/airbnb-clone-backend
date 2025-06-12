@@ -83,3 +83,110 @@ class TestAmenities(APITestCase):
         self.assertEqual(response.status_code, 400)
         # 에러 메시지 안에 name이라는 키워드가 있는지 확인
         self.assertIn("name", data)
+
+
+class TestAmenity(APITestCase):
+    NAME = "Test Amenity"
+    DESC = "Test Description"
+
+    def setUp(self):
+        models.Amenity.objects.create(
+            name=self.NAME,
+            description=self.DESC,
+        )
+
+    def test_amenity_not_found(self):
+        # 해당 Amenity가 존재하지 않는 경우
+        response = self.client.get("/api/v1/rooms/amenities/2")
+
+        self.assertEqual(response.status_code, 404)  # 404: NotFound
+
+    def test_get_amenity(self):
+
+        # 해당 Amenity가 존재하는 경우
+        response = self.client.get("/api/v1/rooms/amenities/1")
+
+        self.assertEqual(response.status_code, 200)
+
+        data = response.json()
+
+        self.assertEqual(
+            data["name"],
+            self.NAME,
+        )
+        self.assertEqual(
+            data["description"],
+            self.DESC,
+        )
+
+    def test_put_amenity(self):
+        updated_amenity_name = "Updated Amenity"
+        updated_amenity_description = "Updated Amenity Description"
+
+        response = self.client.put(
+            "/api/v1/rooms/amenities/1",
+            data={
+                "name": updated_amenity_name,
+            },
+        )
+        data = response.json()
+        self.assertEqual(
+            response.status_code,
+            200,
+            "Not 200 status code",
+        )
+        self.assertEqual(
+            data["name"],
+            updated_amenity_name,
+        )
+
+        response = self.client.put(
+            "/api/v1/rooms/amenities/1",
+            data={
+                "description": updated_amenity_description,
+            },
+        )
+        data = response.json()
+        self.assertEqual(
+            response.status_code,
+            200,
+            "Not 200 status code",
+        )
+        self.assertEqual(
+            data["description"],
+            updated_amenity_description,
+        )
+
+        response = self.client.put(
+            "/api/v1/rooms/amenities/1",
+            data={
+                "name": updated_amenity_name,
+                "description": updated_amenity_description,
+            },
+        )
+        data = response.json()
+        self.assertEqual(
+            response.status_code,
+            200,
+            "Not 200 status code",
+        )
+
+        invalid_name = "name" * 40
+
+        response = self.client.put(
+            "/api/v1/rooms/amenities/1",
+            data={
+                "name": invalid_name,
+                # "description": invalid_desc,
+            },
+        )
+        self.assertEqual(
+            response.status_code,
+            400,
+        )
+
+    def test_delete_amenity(self):
+
+        response = self.client.delete("/api/v1/rooms/amenities/1")
+
+        self.assertEqual(response.status_code, 204)
