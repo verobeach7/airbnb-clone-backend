@@ -3,6 +3,7 @@
 # Django REST Framework에서 제공하는 TestCase Class가 있음. 단축 기능이 많아서 좋음!
 from rest_framework.test import APITestCase
 from rooms import models
+from users.models import User
 
 
 # APITestCase에는 유용한 메서드들이 많이 있음
@@ -190,3 +191,44 @@ class TestAmenity(APITestCase):
         response = self.client.delete("/api/v1/rooms/amenities/1")
 
         self.assertEqual(response.status_code, 204)
+
+
+class TestRooms(APITestCase):
+    def setUp(self):
+        # 계정 생성
+        user = User.objects.create(
+            username="test",
+        )
+        user.set_password("123")  # password 설정도 테스트에서는 꼭 하지 않아도 됨
+        user.save()
+        self.user = user  # user 객체를 생성하여 Class 내부에 저장해주기만 하면 됨
+
+    def test_create_room(self):
+
+        response = self.client.post("/api/v1/rooms/")
+        print(response.json())
+
+        # 로그인 되지 않은 상태에서는 403 에러가 발생함
+        self.assertEqual(response.status_code, 403)
+
+        # # 계정 생성 및 로그인
+        # # 계정 생성 -> setUp()로 이동
+        # user = User.objects.create(
+        #     username="test",
+        # )
+        # user.set_password("123")
+        # user.save()
+        # # 로그인 -> username과 password 기억할 필요 없음: 강제 로그인 시키면 됨
+        # self.client.login(
+        #     username="test",
+        #     password="123",
+        # )
+
+        # 강제 로그인
+        # 다른 부분은 강제 로그인하여 테스트하면 되지만 User를 생성하는 단계를 테스트 할 때는 강제 로그인이 아닌 각 과정을 테스트 해야 함
+        self.client.force_login(
+            self.user,
+        )
+
+        response = self.client.post("/api/v1/rooms/")
+        print(response.json())
