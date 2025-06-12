@@ -11,16 +11,28 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+import environ
+
+env = environ.Env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+# 프로젝트 Root Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
+# environ.Env.read_env(f"{BASE_DIR}/.env")
+# 위 방식은 경로 지정에 실수를 할 수 있음
+# 아래 방식은 실수를 줄여줌
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-+zc-9=9t0cbd+^a)fffoe=@tir65-o&a7!(o#)o=m(z5&#m8@h"
+# SECRET_KEY = "django-insecure-+zc-9=9t0cbd+^a)fffoe=@tir65-o&a7!(o#)o=m(z5&#m8@h"
+# .env에서 SECRET_KEY의 값을 불러옴
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
