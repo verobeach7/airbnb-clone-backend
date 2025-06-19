@@ -47,6 +47,7 @@ THIRD_PARTY_APPS = [
     # "rest_framework.authtoken"을 추가해주는 것만으로도 Admin Panel에서 새로운 모델을 확인 가능. 새로운 테이블이 생성된 것. 즉, migrate 필요(makemigration은 필요 없음. 자동 생성됨.)
     "rest_framework.authtoken",
     "strawberry.django",
+    "corsheaders",
 ]
 
 CUSTOM_APPS = [
@@ -79,6 +80,8 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -180,3 +183,6 @@ REST_FRAMEWORK = {
         "config.authentication.JWTAuthentication",
     ]
 }
+
+# 서버에 접근 가능하도록 설정할 도메인을 추가해주면 됨
+CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]
