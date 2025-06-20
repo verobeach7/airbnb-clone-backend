@@ -64,14 +64,17 @@ class RoomDetailSerializer(ModelSerializer):
     def get_is_liked(self, room):
         # views.py에서 RoomDetailSerializer 호출 시 함께 보낸 context
         request = self.context["request"]
-        # 현 유저의 모든 wishlists를 가져오기 위함, 두 번째 인자는 현재 Room이 유저의 wishlist에 있는지 확인하기 위한 것
-        # __ 이용
-        return Wishlist.objects.filter(
-            user=request.user,
-            rooms__pk=room.pk,
-            # rooms가 가지고 있는 property를 이용할 수 있음
-            # rooms__name="big tent",
-        ).exists()
+        if request.user.is_authenticated:
+            # 현 유저의 모든 wishlists를 가져오기 위함, 두 번째 인자는 현재 Room이 유저의 wishlist에 있는지 확인하기 위한 것
+            # __ 이용
+            return Wishlist.objects.filter(
+                user=request.user,
+                rooms__pk=room.pk,
+                # rooms가 가지고 있는 property를 이용할 수 있음
+                # rooms__name="big tent",
+            ).exists()
+        else:
+            return False
 
 
 class RoomListSerializer(ModelSerializer):
