@@ -1,3 +1,4 @@
+import time
 from django.conf import settings
 
 # 파이썬 표준 라이브러리의 datatime을 사용할 수도 있지만 장고의 timezone은 config/settings.py의 설정을 활용할 수 있음
@@ -181,6 +182,7 @@ class RoomDetail(APIView):
             raise NotFound
 
     def get(self, request, pk):
+        time.sleep(1)
         room = self.get_object(pk)
         serializer = RoomDetailSerializer(
             room,
