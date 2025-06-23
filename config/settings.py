@@ -185,4 +185,8 @@ REST_FRAMEWORK = {
 }
 
 # 서버에 접근 가능하도록 설정할 도메인을 추가해주면 됨
-CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+CORS_ALLOW_CREDENTIALS = True
