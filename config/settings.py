@@ -189,4 +189,10 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
 ]
+# JavaScript에서 HTTP Methods를 이용할 때 Credential(Cookie)를 포함하여 보내도록 허용
 CORS_ALLOW_CREDENTIALS = True
+
+# POST Requests를 허용할 Domain
+CSRF_TRUSTED_ORIGINS = [
+    "http://127.0.0.1:5173",
+]
