@@ -196,3 +196,6 @@ CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:5173",
 ]
+
+# .env에서 가져오기
+GH_SECRET = env("GH_SECRET")

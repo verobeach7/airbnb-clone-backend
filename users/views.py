@@ -2,6 +2,8 @@
 # login: User를 로그인시켜주는 function - User와 함께 Request를 보내면 브라우저가 필요로 하는 cookies와 token 등 중요한 데이터를 자동으로 생성해 줌
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.password_validation import validate_password
+
+# settings.py에 직접 접근할 수 있음. 여기에 설정해 놓은 환경변수를 바로 가져와 사용 가능
 from django.conf import settings
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -11,6 +13,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ParseError, NotFound
 import jwt
+import requests
 from . import serializers
 from .models import User
 from rooms.models import Room
@@ -184,6 +187,27 @@ class JWTLogIn(APIView):
 
 class GithubLogIn(APIView):
     def post(self, request):
+        # Frontend로부터 받아온 깃허브 OAuth 코드
         code = request.data.get("code")
-        print(code)
+        # 이 코드를 가지고 Github에서 Access Token으로 교환해야 함
+        access_token = requests.post(
+            f"https://github.com/login/oauth/access_token?code={code}&client_id=Ov23liRvQnZqj0Iril2U&client_secret={settings.GH_SECRET}",
+            # json으로 보내달라고 요청
+            headers={"Accept": "application/json"},
+        )
+        # print(access_token.json())
+        # {'access_token': 'gho_jyg8...........', 'token_type': 'bearer', 'scope': 'read:user,user:email'}
+        access_token = access_token.json().get("access_token")
+        # access token을 가지고 Github API와 소통할 수 있음
+        user_data = requests.get(
+            "https://api.github.com/user",
+            headers={
+                "Authorization": f"Bearer {access_token}",
+                "Accept": "application/json",
+            },
+        )
+        print(user_data.json())
+        # email은 Github에서 private으로 설정해 놓은 경우 여전히 공개되지 않는 것을 확인할 수 있음
+        # {'login': 'verobeach7', 'id': 60215757, 'node_id': 'MDQ6VXNlcjYwMjE1NzU3', 'avatar_url': 'https://avatars.githubusercontent.com/u/60215757?v=4', 'gravatar_id': '', 'url': 'https://api.github.com/users/verobeach7', 'html_url': 'https://github.com/verobeach7', 'followers_url': 'https://api.github.com/users/verobeach7/followers', 'following_url': 'https://api.github.com/users/verobeach7/following{/other_user}', 'gists_url': 'https://api.github.com/users/verobeach7/gists{/gist_id}', 'starred_url': 'https://api.github.com/users/verobeach7/starred{/owner}{/repo}', 'subscriptions_url': 'https://api.github.com/users/verobeach7/subscriptions', 'organizations_url': 'https://api.github.com/users/verobeach7/orgs', 'repos_url': 'https://api.github.com/users/verobeach7/repos', 'events_url': 'https://api.github.com/users/verobeach7/events{/privacy}', 'received_events_url': 'https://api.github.com/users/verobeach7/received_events', 'type': 'User', 'user_view_type': 'private', 'site_admin': False, 'name': 'verobeach7', 'company': None, 'blog': '', 'location': None, 'email': None, 'hireable': None, 'bio': None, 'twitter_username': None, 'notification_email': None, 'public_repos': 48, 'public_gists': 0, 'followers': 0, 'following': 0, 'created_at': '2020-01-23T09:24:00Z', 'updated_at': '2025-05-04T12:23:30Z', 'private_gists': 0, 'total_private_repos': 13, 'owned_private_repos': 13, 'disk_usage': 230247, 'collaborators': 0, 'two_factor_authentication': False, 'plan': {'name': 'free', 'space': 976562499, 'collaborators': 0, 'private_repos': 10000}}
+        user_data = user_data.json()
         return Response()
