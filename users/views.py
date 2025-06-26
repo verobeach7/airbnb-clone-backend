@@ -215,14 +215,13 @@ class GithubLogIn(APIView):
                 },
             )
             user_emails = user_emails.json()
-            print(user_emails)
             """
             {'message': 'Bad credentials', 'documentation_url': 'https://docs.github.com/rest', 'status': '401'}
             [25/Jun/2025 19:37:31] "POST /api/v1/users/github HTTP/1.1" 200 0
             [{'email': 'verobeach7@gmail.com', 'primary': True, 'verified': True, 'visibility': 'private'}, {'email': '60215757+verobeach7@users.noreply.github.com', 'primary': False, 'verified': True, 'visibility': None}]
             [25/Jun/2025 19:37:31] "POST /api/v1/users/github HTTP/1.1" 200 0
             """
-            # Bad credentials
+            # Bad credentials: Frontend가 Development Mode에서 Strict Mode로 작동하고 있어서 발생하는 현상
             try:
                 user = User.objects.get(email=user_emails[0]["email"])
                 login(request, user)
@@ -234,8 +233,10 @@ class GithubLogIn(APIView):
                     name=user_data.get("name") if user_data.get("name") else "",
                     avatar=user_data.get("avatar_url"),
                 )
+                # set_unusable_password() 설정을 통해 Social Login을 한 사람인지 아닌지 판단하기 가장 좋은 방법 중 하나임
                 user.set_unusable_password()
                 user.save()
+                # login()함수를 호출하면 장고가 알아서 백엔드에 세션을 만들어 주고 유저에게 쿠키를 주는 등 모든 것을 다 자동으로 해줌
                 login(request, user)
                 return Response(status=status.HTTP_200_OK)
         except Exception:
