@@ -241,3 +241,54 @@ class GithubLogIn(APIView):
                 return Response(status=status.HTTP_200_OK)
         except Exception:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class KakaoLogIn(APIView):
+    def post(self, request):
+        try:
+            code = request.data.get("code")
+            # print(code)
+            access_token = requests.post(
+                "https://kauth.kakao.com/oauth/token",
+                headers={
+                    "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+                },
+                data={
+                    "grant_type": "authorization_code",
+                    "client_id": "a4e1b24eef7b898ce0cb1c33edfa353f",
+                    "redirect_uri": "http://127.0.0.1:5173/social/kakao",
+                    "code": code,
+                },
+            )
+            # print(access_token.json())
+            # {'access_token': 'YWLs6iizhdeW......', 'token_type': 'bearer', 'refresh_token': 'vGDxT8bHNMQh-a0uh69v--......', 'expires_in': 21599, 'scope': 'account_email profile_image profile_nickname', 'refresh_token_expires_in': 5183999}
+            access_token = access_token.json().get("access_token")
+            user_data = requests.get(
+                "https://kapi.kakao.com/v2/user/me",
+                headers={
+                    "Authorization": f"Bearer ${access_token}",
+                    "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+                },
+            )
+            user_data = user_data.json()
+            # print(user_data)
+            # {'id': 432200......, 'connected_at': '2025-06-26T04:27:14Z', 'properties': {'nickname': '희성', 'profile_image': 'http://k.kakaocdn.net/dn/c88j6T/btsJQ2sjOzH/RiraK....../img_640x640.jpg', 'thumbnail_image': 'http://k.kakaocdn.net/dn/c88j6T/btsJQ2sjOzH/Ri...../img_110x110.jpg'}, 'kakao_account': {'profile_nickname_needs_agreement': False, 'profile_image_needs_agreement': False, 'profile': {'nickname': '희성', 'thumbnail_image_url': 'http://k.kakaocdn.net/dn/c88j6T/btsJQ2sjOzH/Rira.......jpg', 'profile_image_url': 'http://k.kakaocdn.net/dn/c88j6T/btsJQ2sjOzH/RiraKv....../img_640x640.jpg', 'is_default_image': False, 'is_default_nickname': False}, 'has_email': True, 'email_needs_agreement': False, 'is_email_valid': True, 'is_email_verified': True, 'email': 'verobe......'}}
+            kakao_account = user_data.get("kakao_account")
+            profile = kakao_account.get("profile")
+            try:
+                user = User.objects.get(email=kakao_account.get("email"))
+                login(request, user)
+                return Response(status=status.HTTP_200_OK)
+            except User.DoesNotExist:
+                user = User.objects.create(
+                    email=kakao_account.get("email"),
+                    username=profile.get("nickname"),
+                    name=profile.get("nickname"),
+                    avatar=profile.get("profile_image_url"),
+                )
+                user.set_unusable_password()
+                user.save()
+                login(request, user)
+                return Response(status=status.HTTP_200_OK)
+        except Exception:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
