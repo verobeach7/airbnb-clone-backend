@@ -143,7 +143,10 @@ class LogIn(APIView):
         if user:
             # request와 user를 담아 login() 함수를 호출하면 장고가 알아서 로그인 시킴
             login(request, user)
-            return Response({"ok": "welcome!"})
+            return Response(
+                {"ok": "welcome!"},
+                status=status.HTTP_200_OK,
+            )
         else:
             return Response(
                 {"error": "wrong password"},
