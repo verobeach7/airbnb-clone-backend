@@ -182,7 +182,7 @@ class RoomDetail(APIView):
             raise NotFound
 
     def get(self, request, pk):
-        time.sleep(1)
+        # time.sleep(1)
         room = self.get_object(pk)
         serializer = RoomDetailSerializer(
             room,
@@ -262,6 +262,7 @@ class RoomReviews(APIView):
             raise NotFound
 
     def get(self, request, pk):
+        # time.sleep(1)
         try:
             # 모든 딕셔너리의 get Method는 기본값을 지정할 수 있음
             page = request.query_params.get("page", 1)

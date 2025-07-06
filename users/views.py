@@ -298,3 +298,59 @@ class KakaoLogIn(APIView):
                 return Response(status=status.HTTP_200_OK)
         except Exception:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class SignUp(APIView):
+    def post(self, request):
+        try:
+            username = request.data.get("username")
+            password = request.data.get("password")
+            name = request.data.get("name")
+            email = request.data.get("email")
+
+            print(username, password, name, email)
+
+            # 프론트엔드에서 username, password, name, email이 제대로 넘어왔는지에 대한 검증 필요. 사용자를 신뢰하지 말기
+            if email == "" or username == "" or name == "" or password == "":
+                return Response(
+                    {
+                        "fail": "Required field is missing",
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            # 이름과 비밀번호는 다른 사용자와 같을 수 있음
+            # username이나 email이 같은 사용자가 존재하는 경우 이것을 이용하여 가입 불가
+            if User.objects.filter(username=username):
+                return Response(
+                    {
+                        "fail": "This username is already taken",
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if User.objects.filter(email=email):
+                return Response(
+                    {"fail": "This email is already taken"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            user = User.objects.create(
+                username=username,
+                name=name,
+                email=email,
+            )
+            user.set_password(password)
+            user.save()
+            login(request, user)
+
+            return Response(
+                {
+                    "success": "Created the user",
+                },
+                status=status.HTTP_200_OK,
+            )
+        except Exception as e:
+            return Response(
+                {"error": f"Occurred some error while signing up as {e}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
