@@ -266,9 +266,9 @@ class RoomReviews(APIView):
         try:
             # 모든 딕셔너리의 get Method는 기본값을 지정할 수 있음
             page = request.query_params.get("page", 1)
-            print(type(page))
+            # print(type(page))
             # parameter로 page를 줬을 때는 <class 'str'>, 기본값이 들어갈 때는 <class 'int'>로 타입이 결정됨
-            print(page)
+            # print(page)
             page = int(page)
         # page가 없거나 문자가 들어가는 경우 에러가 발생하는데 이 때 1페이지를 보여주도록 함
         except ValueError:
