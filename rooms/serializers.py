@@ -46,8 +46,11 @@ class RoomDetailSerializer(ModelSerializer):
         return room.rating()
 
     def get_is_owner(self, room):
-        request = self.context["request"]
-        return room.owner == request.user  # True or False
+        # 방법1
+        request = self.context.get("request")
+        if request:
+            return room.owner == request.user  # True or False
+        return False
 
     # 데이터베이스에 추가되는 것을 막기 위해 일부러 에러 발생시키기
     # def create(self, validated_data):
@@ -63,19 +66,20 @@ class RoomDetailSerializer(ModelSerializer):
 
     # room은 Serializer에서 serializing하고 있는 room
     def get_is_liked(self, room):
+        # 방법2
         # views.py에서 RoomDetailSerializer 호출 시 함께 보낸 context
         request = self.context["request"]
-        if request.user.is_authenticated:
-            # 현 유저의 모든 wishlists를 가져오기 위함, 두 번째 인자는 현재 Room이 유저의 wishlist에 있는지 확인하기 위한 것
-            # __ 이용
-            return Wishlist.objects.filter(
-                user=request.user,
-                rooms__pk=room.pk,
-                # rooms가 가지고 있는 property를 이용할 수 있음
-                # rooms__name="big tent",
-            ).exists()
-        else:
-            return False
+        if request:
+            if request.user.is_authenticated:
+                # 현 유저의 모든 wishlists를 가져오기 위함, 두 번째 인자는 현재 Room이 유저의 wishlist에 있는지 확인하기 위한 것
+                # __ 이용
+                return Wishlist.objects.filter(
+                    user=request.user,
+                    rooms__pk=room.pk,
+                    # rooms가 가지고 있는 property를 이용할 수 있음
+                    # rooms__name="big tent",
+                ).exists()
+        return False
 
 
 class RoomListSerializer(ModelSerializer):

@@ -161,7 +161,13 @@ class Rooms(APIView):
                     for amenity_pk in amenities:
                         amenity = Amenity.objects.get(pk=amenity_pk)
                         room.amenities.add(amenity)
-                    serializer = RoomDetailSerializer(room)
+                    serializer = RoomDetailSerializer(
+                        room,
+                        # RoomDetailSerializer 내부에서 SerializerMethodField를 호출할 때 request를 필요로 하므로 여기서 request를 포함하여 보내줘야 함
+                        context={
+                            "request": request,
+                        },
+                    )
                     return Response(serializer.data)
             except Exception:
                 raise ParseError("Amenity not found.")
