@@ -38,5 +38,7 @@ class GetUploadURL(APIView):
         # json으로 변환
         one_time_url = one_time_url.json()
         result = one_time_url.get("result")
-        # 필요한 정보만 반환
-        return Response({"uploadURL": result.get("uploadURL")})
+        # result에 있는 id와 uploadURL을 모두 프론트엔드가 받아야 함
+        # uploadURL은 이미지를 탑재하는 데 사용
+        # id는 해당 이미지를 가져와야 할 때 사용
+        return Response({"result": result})
