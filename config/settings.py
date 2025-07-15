@@ -199,3 +199,5 @@ CSRF_TRUSTED_ORIGINS = [
 
 # .env에서 가져오기
 GH_SECRET = env("GH_SECRET")
+CF_ACCOUNT_ID = env("CF_ACCOUNT_ID")
+CF_TOKEN = env("CF_TOKEN")
