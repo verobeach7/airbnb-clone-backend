@@ -398,7 +398,20 @@ class RoomBookings(APIView):
     #     # pk에 해당하는 room이 없으면 결과 값은 빈 List가 됨
 
     def post(self, request, pk):
-        pass
+        room = self.get_object(pk)
+        serializer = CreateRoomBookingSerializer(
+            data=request.data, context={"room": room}
+        )
+        if serializer.is_valid():
+            booking = serializer.save(
+                room=room,
+                user=request.user,
+                kind=Booking.BookingKindChoices.ROOM,
+            )
+            serializer = PublicBookingSerializer(booking)
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
 
 
 class RoomMonthlyBookings(APIView):
@@ -494,3 +507,27 @@ class RoomMonthlyBookings(APIView):
             return Response(serializer.data)
         else:
             return Response(serializer.errors)
+
+
+# 기존 예약이 이미 있는지 프론트엔드에서 빠르게 확인하기 위해 사용
+class RoomBookingCheck(APIView):
+    def get_object(self, pk):
+        try:
+            return Room.objects.get(pk=pk)
+        except Room.DoesNotExist:
+            raise NotFound
+
+    # example of GET request url: /check?check_in=2022&check_out=2002
+    def get(self, request, pk):
+        room = self.get_object(pk)
+        # request는 query_params를 가지고 있음
+        check_in = request.query_params.get("check_in")
+        check_out = request.query_params.get("check_out")
+        exists = Booking.objects.filter(
+            room=room,
+            check_in__lt=check_out,  #  8 lt(<) 9
+            check_out__gt=check_in,  #  15 gt(>) 6
+        ).exists()
+        if exists:
+            return Response({"ok": False})
+        return Response({"ok": True})

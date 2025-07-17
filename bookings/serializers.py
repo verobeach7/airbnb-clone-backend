@@ -54,6 +54,7 @@ class CreateRoomBookingSerializer(serializers.ModelSerializer):
 
     # data에 모든 fields를 받아 한꺼번에 validate 할 수 있음
     def validate(self, data):
+        room = self.context.get("room")
         # print(data)
         # {'check_in': datetime.date(2025, 6, 4), 'check_out': datetime.date(2025, 6, 5), 'guests': 2} -> data는 dictionary로 전달됨
         # check_in이 check_out보다 반드시 빨라야 함
@@ -79,7 +80,7 @@ class CreateRoomBookingSerializer(serializers.ModelSerializer):
         #         5==6 가능
         # 체크아웃 전에 체크인을 하고, 체크인 후에 체크아웃을 하는 기존 예약이 있는지 찾기
         if Booking.objects.filter(
-            room=self.context["room"],
+            room=room,
             # 기존 예약의 체크인이 새로운 예약의 체크아웃보다 빠른 게 있는지 확인
             check_in__lt=data["check_out"],  #  8 lt(<) 9
             # 기존 예약의 체크아웃이 새로운 예약의 체크인보다 늦는 게 있는지 확인
