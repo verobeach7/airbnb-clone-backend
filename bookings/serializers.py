@@ -1,6 +1,8 @@
 from django.utils import timezone
 from rest_framework import serializers
 from .models import Booking
+from rooms.serializers import SimpleBookedRoomSerializer
+from users.serializers import TinyUserSerializer
 
 
 class CreateExperienceBookingSerializer(serializers.ModelSerializer):
@@ -103,4 +105,21 @@ class PublicBookingSerializer(serializers.ModelSerializer):
             "check_out",
             "experience_time",
             "guests",
+        )
+
+
+# 사용자가 예약한 방의 모든 예약을 확인하는데 사용
+class UserBookedRoomSerializer(serializers.ModelSerializer):
+    room = SimpleBookedRoomSerializer(read_only=True)
+    user = TinyUserSerializer(read_only=True)
+
+    class Meta:
+        model = Booking
+        fields = (
+            "pk",
+            "check_in",
+            "check_out",
+            "guests",
+            "room",
+            "user",
         )

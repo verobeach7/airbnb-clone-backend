@@ -106,3 +106,20 @@ class RoomListSerializer(ModelSerializer):
     def get_is_owner(self, room):
         request = self.context["request"]
         return room.owner == request.user
+
+
+# 예약 확인을 위해 방에 대한 모든 정보를 받을 필요는 없으므로 별도의 단순화한 Serializer를 만들어 필요한 정보만 포함하도록 설계
+class SimpleBookedRoomSerializer(ModelSerializer):
+    # 사진은 방과 체험을 포함하여 별도 medias로 관리되므로 필요한 세부 정보를 가져오기 위해 별도의 Serializer를 사용해줘야 함: 그렇지 않으면 사진의 pk만 가져옴
+    photos = PhotoSerializer(read_only=True, many=True)
+
+    class Meta:
+        model = Room
+        fields = (
+            "name",
+            "country",
+            "city",
+            "price",
+            "rating",
+            "photos",
+        )

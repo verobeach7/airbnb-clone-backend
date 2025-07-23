@@ -6,7 +6,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.db import transaction
 from rest_framework.views import APIView
-from rest_framework.status import HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST, HTTP_200_OK
 from rest_framework.response import Response
 from rest_framework.exceptions import (
     NotFound,
@@ -409,7 +409,10 @@ class RoomBookings(APIView):
                 kind=Booking.BookingKindChoices.ROOM,
             )
             serializer = PublicBookingSerializer(booking)
-            return Response(serializer.data)
+            return Response(
+                serializer.data,
+                status=HTTP_200_OK,
+            )
         else:
             return Response(serializer.errors)
 

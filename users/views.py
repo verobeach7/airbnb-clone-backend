@@ -17,7 +17,9 @@ import requests
 from . import serializers
 from .models import User
 from rooms.models import Room
+from bookings.models import Booking
 from rooms import serializers as RoomSerializer
+from bookings import serializers as BookingSerializer
 from reviews.models import Review
 from reviews import serializers as ReviewSerializer
 
@@ -102,6 +104,25 @@ class UserReviews(APIView):
             all_reviews,
             many=True,
         )
+        return Response(serializer.data)
+
+
+class userBookedRooms(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        all_booked_list = Booking.objects.filter(
+            user=request.user,
+            kind=Booking.BookingKindChoices.ROOM,
+        )
+        # print(all_booked_list)  # QuerySet을 받음
+        # QuerySet이나 Model Instance를 JSON으로 응답하기 위해 serializer 사용
+        # 데이터 검증, 직렬화, 역직렬화를 위해 사용됨
+        serializer = BookingSerializer.UserBookedRoomSerializer(
+            all_booked_list,
+            many=True,  # all_booked_list가 여러 개를 담고 있는 Array이기 때문에 설정
+        )
+        # print(serializer.data)
         return Response(serializer.data)
 
 
