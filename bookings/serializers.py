@@ -97,6 +97,8 @@ class CreateRoomBookingSerializer(serializers.ModelSerializer):
 
 # 모든 사람이 방이나 체험에 예약이 어떻게 잡혀있는지 확인하기 위하여 사용하는 serializer
 class PublicBookingSerializer(serializers.ModelSerializer):
+    user = TinyUserSerializer(read_only=True)
+
     class Meta:
         model = Booking
         fields = (
@@ -105,6 +107,7 @@ class PublicBookingSerializer(serializers.ModelSerializer):
             "check_out",
             "experience_time",
             "guests",
+            "user",
         )
 
 
