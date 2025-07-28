@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 import environ
+import dj_database_url
+
 
 env = environ.Env()
 
@@ -35,10 +37,22 @@ environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# 프론트엔드의 api에서 페이지를 찾을 수 없거나 에러가 생겼을 때 나오는 페이지
+# 배포 할 때는 사용자가 볼 수 없도록 디버그를 꺼버려야 함
+# RENDER라는 환경변수의 존재 여부에 따라 DEBUG를 켜고 꺼야 함
+DEBUG = "RENDER" not in os.environ
 
+# 개발 환경에서는 건들 필요 없지만 배포 시에는(DEBUG가 False일 때) 설정을 해 줘야 함
+# ALLOWED_HOSTS는 앱을 실행시킬 수 있는 도메인 목록임
+# ["https://google.com"]: google.com만 이 앱을 실행시킬 수 있음
 ALLOWED_HOSTS = []
-
+# Render는 이를 해주는 장치가 따로 있음
+# 외부로 노출시키는 url을 설정: Render가 제공하는 테스트 url이나 개발자가 구입한 도메인 주소
+# 렌더에 배포하면 테스트 도메인을 RENDER_EXTERNAL_HOSTNAME 환경변수에 넣어 줌
+# 렌더가 만든 서버를 장고에서 실행할 수 있도록 설정해주는 것
+RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # Application definition
 
@@ -77,6 +91,7 @@ INSTALLED_APPS = SYSTEM_APPS + THIRD_PARTY_APPS + CUSTOM_APPS
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -109,13 +124,24 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+# 개발 단계에서 sqlite를 사용하는 것은 문제가 없음
+# 배포 시에는 PostgreSQL로 작업
+if DEBUG:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
     }
-}
+else:
+    DATABASES = {
+        # Render가 DB를 만들면 DB url을 환경변수로 제공함
+        "default": dj_database_url.config(
+            # DB 연결이 종료되기 전 연결 유지 시간 설정
+            # 하나의 연결에 너무 많은 시간을 소요하지 않는 것이 좋음: 즉, Timeout을 설정
+            conn_max_age=600,
+        ),
+    }
 
 
 # Password validation
@@ -152,7 +178,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
+
+# This production code might break development mode, so we check whether we're in DEBUG mode
+if not DEBUG:
+    # Tell Django to copy static assets into a path called `staticfiles` (this is specific to Render)
+    STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
+    # Enable the WhiteNoise storage backend, which compresses static files to reduce disk use
+    # and renames the files with unique names for each version to support long-term caching
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
