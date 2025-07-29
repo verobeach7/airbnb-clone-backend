@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 import environ
+import sentry_sdk
 import dj_database_url
 
 
@@ -236,3 +237,13 @@ CSRF_TRUSTED_ORIGINS = [
 GH_SECRET = env("GH_SECRET")
 CF_ACCOUNT_ID = env("CF_ACCOUNT_ID")
 CF_TOKEN = env("CF_TOKEN")
+
+# Sentry: Error Monitoring
+# 개발 환경에서는 작동하지 않고 프로덕션 환경에서만 작동하도록 설정
+if not DEBUG:
+    sentry_sdk.init(
+        dsn="https://bfc022ea629f7a4b7849903eca8ff9c6@o4509750320693248.ingest.us.sentry.io/4509750341271552",
+        # Add data like request headers and IP for users,
+        # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
+        send_default_pii=True,
+    )
