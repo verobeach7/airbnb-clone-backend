@@ -247,3 +247,15 @@ if not DEBUG:
         # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
         send_default_pii=True,
     )
+
+# Render에 무료로 createsuperuser를 하기 위한 것
+# Render에서 shell을 이용하여 해야 하지만 유료 서비스임
+# 슈퍼유저 자동 생성 시 필요한 설정
+if os.environ.get("CREATE_SUPERUSER"):
+    os.environ["DJANGO_SUPERUSER_EMAIL"] = os.environ.get("DJANGO_SUPERUSER_EMAIL")
+    os.environ["DJANGO_SUPERUSER_USERNAME"] = os.environ.get(
+        "DJANGO_SUPERUSER_USERNAME"
+    )
+    os.environ["DJANGO_SUPERUSER_PASSWORD"] = os.environ.get(
+        "DJANGO_SUPERUSER_PASSWORD"
+    )
