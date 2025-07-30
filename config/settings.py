@@ -220,18 +220,24 @@ REST_FRAMEWORK = {
     ]
 }
 
-# 서버에 접근 가능하도록 설정할 도메인을 추가해주면 됨
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
+if DEBUG:
+    # 서버에 접근 가능하도록 설정할 도메인을 추가해주면 됨
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ]
+
+    # POST Requests를 허용할 Domain
+    CSRF_TRUSTED_ORIGINS = [
+        "http://127.0.0.1:5173",
+    ]
+else:
+    CORS_ALLOWED_ORIGINS = ["https://airbnb-clone-frontend-v0pq.onrender.com"]
+
+    CSRF_TRUSTED_ORIGINS = ["https://airbnb-clone-frontend-v0pq.onrender.com"]
+
 # JavaScript에서 HTTP Methods를 이용할 때 Credential(Cookie)를 포함하여 보내도록 허용
 CORS_ALLOW_CREDENTIALS = True
-
-# POST Requests를 허용할 Domain
-CSRF_TRUSTED_ORIGINS = [
-    "http://127.0.0.1:5173",
-]
 
 # .env에서 가져오기
 GH_SECRET = env("GH_SECRET")
