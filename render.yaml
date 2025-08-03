@@ -12,7 +12,7 @@ services:
     runtime: python
     region: singapore
     buildCommand: "./build.sh"
-    startCommand: "gunicorn config.asgi:application -k uvicorn.workers.UvicornWorker"
+    startCommand: "gunicorn config.asgi:application -k config.asgi.DjangoUvicornWorker"
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -22,5 +22,3 @@ services:
         generateValue: true
       - key: WEB_CONCURRENCY
         value: 4
-      - key: UVICORN_CMD_ARGS
-        value: --lifespan off
