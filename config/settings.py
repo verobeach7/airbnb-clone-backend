@@ -46,7 +46,9 @@ DEBUG = "RENDER" not in os.environ
 # 개발 환경에서는 건들 필요 없지만 배포 시에는(DEBUG가 False일 때) 설정을 해 줘야 함
 # ALLOWED_HOSTS는 앱을 실행시킬 수 있는 도메인 목록임
 # ["https://google.com"]: google.com만 이 앱을 실행시킬 수 있음
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "https://airbnbclone-hcic.onrender.com",
+]
 # Render는 이를 해주는 장치가 따로 있음
 # 외부로 노출시키는 url을 설정: Render가 제공하는 테스트 url이나 개발자가 구입한 도메인 주소
 # 렌더에 배포하면 테스트 도메인을 RENDER_EXTERNAL_HOSTNAME 환경변수에 넣어 줌
