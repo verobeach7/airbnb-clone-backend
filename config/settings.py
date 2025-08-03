@@ -254,12 +254,6 @@ if not DEBUG:
     SESSION_COOKIE_DOMAIN = ".onrender.com"
     CSRF_COOKIE_DOMAIN = ".onrender.com"
 
-    SESSION_COOKIE_SAMESITE = "None"
-    SESSION_COOKIE_SECURE = True
-
-    CSRF_COOKIE_SAMESITE = "None"
-    CSRF_COOKIE_SECURE = True
-
     sentry_sdk.init(
         dsn="https://bfc022ea629f7a4b7849903eca8ff9c6@o4509750320693248.ingest.us.sentry.io/4509750341271552",
         # Add data like request headers and IP for users,
