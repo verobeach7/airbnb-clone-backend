@@ -293,7 +293,7 @@ class KakaoLogIn(APIView):
             user_data = requests.get(
                 "https://kapi.kakao.com/v2/user/me",
                 headers={
-                    "Authorization": f"Bearer ${access_token}",
+                    "Authorization": f"Bearer {access_token}",
                     "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
                 },
             )

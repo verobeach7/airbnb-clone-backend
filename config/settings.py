@@ -47,7 +47,9 @@ DEBUG = "RENDER" not in os.environ
 # ALLOWED_HOSTS는 앱을 실행시킬 수 있는 도메인 목록임
 # ["https://google.com"]: google.com만 이 앱을 실행시킬 수 있음
 ALLOWED_HOSTS = [
+    "backend.production-test.xyz",
     "https://airbnbclone-hcic.onrender.com",
+    "127.0.0.1",
 ]
 # Render는 이를 해주는 장치가 따로 있음
 # 외부로 노출시키는 url을 설정: Render가 제공하는 테스트 url이나 개발자가 구입한 도메인 주소
@@ -234,9 +236,15 @@ if DEBUG:
         "http://127.0.0.1:5173",
     ]
 else:
-    CORS_ALLOWED_ORIGINS = ["https://airbnb-clone-frontend-v0pq.onrender.com"]
+    CORS_ALLOWED_ORIGINS = [
+        "https://production-test.xyz",
+        "https://airbnb-clone-frontend-v0pq.onrender.com",
+    ]
 
-    CSRF_TRUSTED_ORIGINS = ["https://airbnb-clone-frontend-v0pq.onrender.com"]
+    CSRF_TRUSTED_ORIGINS = [
+        "https://production-test.xyz",
+        "https://airbnb-clone-frontend-v0pq.onrender.com",
+    ]
 
 # JavaScript에서 HTTP Methods를 이용할 때 Credential(Cookie)를 포함하여 보내도록 허용
 CORS_ALLOW_CREDENTIALS = True
@@ -251,16 +259,17 @@ CF_TOKEN = env("CF_TOKEN")
 if not DEBUG:
     # 만약 도메인을 구입했다면 구입한 도메인 주소를 넣어주면 됨 #
     # 쿠키 설정을 해주지 않으면 ID/PASSWORD 로그인이 불가
-    # SESSION_COOKIE_DOMAIN = ".onrender.com"
-    # CSRF_COOKIE_DOMAIN = ".onrender.com"
+    # 아래 설정은 서브도메인 통신에서만 유효: .onrender.com은 서브도메인이 아닌 프론트엔드와 백엔드가 별도의 도메인으로 인식됨
+    SESSION_COOKIE_DOMAIN = ".production-test.xyz"
+    CSRF_COOKIE_DOMAIN = ".production-test.xyz"
     ###############################################
 
     # Render TEST URL 사용 시#
-    SESSION_COOKIE_SAMESITE = "None"
-    SESSION_COOKIE_SECURE = True
+    # SESSION_COOKIE_SAMESITE = "None"
+    # SESSION_COOKIE_SECURE = True
 
-    CSRF_COOKIE_SAMESITE = "None"
-    CSRF_COOKIE_SECURE = True
+    # CSRF_COOKIE_SAMESITE = "None"
+    # CSRF_COOKIE_SECURE = True
     ########################
 
     sentry_sdk.init(
